@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="new-publish">
         <el-form :model="formData" :rules="rules" ref="ruleForm" class="publish-box">
             <div class="box-top">
                 <el-row :gutter="60">
@@ -25,27 +25,67 @@
                         <div class="item mark-box">
                             <p class="item-title">产品标签</p>
                             <el-form-item>
-                                <AddMarks :data="formData.marks" @addMark="addMark"></AddMarks>
+                                <el-select size="small" v-model="formData.marks" multiple placeholder="请选择" >
+                                    <el-option
+                                        v-for="item in marks"
+                                        :key="item.id"
+                                        :label="item.name"
+                                        :value="item.id">
+                                    </el-option>
+                                </el-select>
                             </el-form-item>
                         </div>
                         <!-- 产品价格 -->
-                        <div class="item">
+                        <div class="item price-area">
                             <p class="item-title">产品价格</p>
-                            <el-form-item prop="title">
-                                
+                            <el-form-item prop="title" class="pl-52">
+                                <el-input size="small" v-model="input1">
+                                    <template slot="prefix">销售价：</template>
+                                    <template slot="suffix">元</template>
+                                </el-input>
                             </el-form-item>
                             <el-form-item prop="subtitle">
-                               
+                                <el-input size="small" v-model="input1" >
+                                    <template slot="prefix">原价：</template>
+                                    <template slot="suffix">元</template>
+                                </el-input>
+                            </el-form-item>
+                            <el-form-item>
+                                <el-input size="small" v-model="input1">
+                                    <template slot="prefix">运费：</template>
+                                    <template slot="suffix">元</template>
+                                </el-input>
+                            </el-form-item>
+                            <p>分佣比例</p>
+                            <el-form-item prop="title" class="pl-60">
+                                <el-input size="small" v-model="input1">
+                                    <template slot="prefix">大团主挣：</template>
+                                    <template slot="suffix">%</template>
+                                </el-input>
+                            </el-form-item>
+                            <el-form-item prop="subtitle" class="pl-84">
+                                <el-input size="small" v-model="input1" >
+                                    <template slot="prefix">小团主自转挣：</template>
+                                    <template slot="suffix">%</template>
+                                </el-input>
+                            </el-form-item>
+                            <el-form-item class="pl-84">
+                                <el-input size="small" v-model="input1">
+                                    <template slot="prefix">小团主帮发挣：</template>
+                                    <template slot="suffix">%</template>
+                                </el-input>
                             </el-form-item>
                         </div>
                         <!-- 产品分类 -->
                         <div class="item">
                             <p class="item-title">产品分类</p>
-                            <el-form-item prop="title">
-                                
-                            </el-form-item>
-                            <el-form-item prop="subtitle">
-                               
+                            <el-form-item>
+                                <el-button
+                                    size="mini"
+                                    type="primary"
+                                    v-for="(item, index) in parentCatelogList"
+                                    :key="index"
+                                >{{item.name}}</el-button>
                             </el-form-item>
                         </div>
                         <!-- 产品库存 -->
@@ -140,18 +180,17 @@
 
 <script>
 import UpLoad from './subModule/upload';
-import AddMarks from './subModule/addMarks';
+import Api from '@/api';
 export default {
     name:'newPublish',
     components: {
         UpLoad,
-        AddMarks
     },
     data () {
         return {
             formData: {
                 // 标签
-                marks: [{value: ''}],
+                marks: [],
                 name: '',
                 region: '',
                 date1: '',
@@ -161,6 +200,9 @@ export default {
                 resource: '',
                 desc: ''
             },
+            marks: [], // 标签列表
+            parentCatelogList: [], // 一级分类
+            subCatelogList: [], // 二级分类
             rules: {
                 name: [
                     { required: true, message: '请输入活动名称', trigger: 'blur' },
@@ -191,10 +233,23 @@ export default {
         
     },
     mounted () {
-        
+        this.getMarks();
+        this.getCatelogList();
     },
     methods: {
-        addMark() {}
+        // 获取所有标签
+        getMarks() {
+            Api.mark.list().then(({data}) => {
+                this.marks = data;
+            })
+        },
+        // 获取所有分类
+        getCatelogList() {
+            Api.product.getCategoryList().then(res => {
+                console.log(res, 'fenlei');
+                this.parentCatelogList = res.data.filter(item => item.parentId === 0);
+            })
+        }
     }
 }
 </script>
@@ -210,13 +265,10 @@ export default {
                     // margin-bottom: 6px!important;
                 }
             }
-            .title-box{
-                .title{
-                    width: 60%;
-                }
-            }
+
 
         }
+        .new-publish {}
         
     }
 

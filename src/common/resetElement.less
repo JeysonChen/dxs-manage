@@ -14,20 +14,53 @@
         width: 220px;
     }
     .com-input {
-        .el-input-group__prepend {
-            background: transparent;
-            padding: 0 10px;
-        }
-        .el-input__inner {
-            border-left: 0;
-            &:focus {
-                outline: none;
-            }
+        // .el-input-group__prepend {
+        //     background: transparent;
+        //     padding: 0 10px;
+        // }
+        // .el-input__inner {
+        //     border-left: 0;
+        //     &:focus {
+        //         outline: none;
+        //     }
 
-        }
+        // }
         .el-input__suffix {
             display: flex;
             align-items: center;
         }
     }
+    .publish-box {
+        .el-input--small {
+            width: 500px;
+        }
+        .price-area {
+            .el-input--small {
+                width: 180px;
+            }
+            .el-form-item {
+                display: inline-block;
+                margin-right: 10px;
+            }
+        }
+        .el-input-group__append,
+        .el-input-group__prepend {
+            background: none;
+        }
+        .el-input--prefix .el-input__inner {
+            padding-left: 40px;
+            font-size: 12px;
+        }
+        .pl-52 .el-input--prefix .el-input__inner {
+            padding-left: 52px;
+        }
+        .pl-60 .el-input--prefix .el-input__inner {
+            padding-left: 60px;
+        }
+        .pl-84 .el-input--prefix .el-input__inner {
+            padding-left: 84px;
+        }
+    }
+
+    
 }

@@ -19,6 +19,10 @@ export default {
         url: '/Product/mallProduct/Delete',
         method: 'post'
     },
+    getCategoryList: {
+        url: '/Product/mallCategory/List',
+        method: 'post'
+    },
     // 上架商品
     // offsale: {
     //     url: '',
