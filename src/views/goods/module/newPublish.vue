@@ -8,7 +8,14 @@
                         <div class="item">
                             <p class="item-title">产品图</p>
                             <el-form-item prop="picture">
-                                <up-load />
+                                <UpLoad
+                                    ref="productListUpload"
+                                    type="1"
+                                    actionUrl="https://upload-z2.qiniup.com"
+                                    tips="只能上传jpg/png文件，默认第一张图为封面主图"
+                                    title="上传图片"
+                                    @handlerSuccess="productListUploaded"
+                                />
                             </el-form-item>
                         </div>
                         <!-- 产品标题 -->
@@ -39,38 +46,38 @@
                         <div class="item price-area">
                             <p class="item-title">产品价格</p>
                             <el-form-item prop="title" class="pl-52">
-                                <el-input size="small" v-model="salePrice">
+                                <el-input size="small" v-model="formData.salePrice">
                                     <template slot="prefix">销售价：</template>
                                     <template slot="suffix">元</template>
                                 </el-input>
                             </el-form-item>
                             <el-form-item prop="subtitle">
-                                <el-input size="small" v-model="originPrice" >
+                                <el-input size="small" v-model="formData.originPrice" >
                                     <template slot="prefix">原价：</template>
                                     <template slot="suffix">元</template>
                                 </el-input>
                             </el-form-item>
                             <el-form-item>
-                                <el-input size="small" v-model="transportCosts">
+                                <el-input size="small" v-model="formData.transportCosts">
                                     <template slot="prefix">运费：</template>
                                     <template slot="suffix">元</template>
                                 </el-input>
                             </el-form-item>
                             <p>分佣比例</p>
                             <el-form-item prop="title" class="pl-60">
-                                <el-input size="small" v-model="groupOwnerEarnings">
+                                <el-input size="small" v-model="formData.groupOwnerEarnings">
                                     <template slot="prefix">大团主挣：</template>
                                     <template slot="suffix">%</template>
                                 </el-input>
                             </el-form-item>
                             <el-form-item prop="subtitle" class="pl-84">
-                                <el-input size="small" v-model="shareEarnings" >
+                                <el-input size="small" v-model="formData.shareEarnings" >
                                     <template slot="prefix">小团主自转挣：</template>
                                     <template slot="suffix">%</template>
                                 </el-input>
                             </el-form-item>
                             <el-form-item class="pl-84">
-                                <el-input size="small" v-model="helphairEarnings">
+                                <el-input size="small" v-model="formData.helphairEarnings">
                                     <template slot="prefix">小团主帮发挣：</template>
                                     <template slot="suffix">%</template>
                                 </el-input>
@@ -103,13 +110,13 @@
                         <div class="item price-area">
                             <p class="item-title">产品库存</p>
                             <el-form-item prop="title" class="pl-52">
-                                <el-input size="small" v-model="stockQuantity">
+                                <el-input size="small" v-model="formData.stockQuantity">
                                     <template slot="prefix">总数量：</template>
                                     <template slot="suffix">件</template>
                                 </el-input>
                             </el-form-item>
                             <el-form-item prop="subtitle" class="pl-114">
-                                <el-input size="small" v-model="maxBuyQuantity" >
+                                <el-input size="small" v-model="formData.maxBuyQuantity" >
                                     <template slot="prefix">单人最多可购买数：</template>
                                     <template slot="suffix">件</template>
                                 </el-input>
@@ -119,7 +126,7 @@
                         <div class="item price-area">
                             <p class="item-title">大团主</p>
                             <el-form-item prop="subtitle" class="pl-52">
-                                <el-input size="small" v-model="shareEarnings" >
+                                <el-input size="small" v-model="formData.shareEarnings" >
                                     <template slot="prefix">手机号：</template>
                                 </el-input>
                             </el-form-item>
@@ -129,26 +136,21 @@
                         <!-- 详情长图 -->
                         <div class="item">
                             <p class="item-title">详情长图</p>
-                            <el-upload
+                            <UpLoad
                                 class="upload-detail"
-                                ref="upload"
-                                list-type="picture-card"
-                                action="https://jsonplaceholder.typicode.com/posts/"
-                                :on-preview="handlePreview"
-                                :on-remove="handleRemove"
-                                :file-list="fileList"
-                                :auto-upload="false">
-                                <i slot="default" class="el-icon-plus"></i>
-                                <div class="el-upload__text"><p class="title-one">上传详情长图</p></div>
-                                
-                                <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-                            </el-upload>
+                                ref="productDetailUpload"
+                                type="2"
+                                actionUrl="https://upload-z2.qiniup.com"
+                                tips="只能上传jpg/png文件，且不超过500kb"
+                                title="上传详情长图"
+                                @handlerSuccess="productDetailUploaded"
+                            />
                         </div>
                     </el-col>
                 </el-row>
             </div>
             <div class="tox-bottom">
-
+                <el-button type="primary" size="mini" @click="submit">提交</el-button>
             </div>
         </el-form>
     </div>
@@ -156,14 +158,17 @@
 
 <script>
 import UpLoad from './subModule/upload';
+
 import Api from '@/api';
 export default {
     name:'newPublish',
     components: {
-        UpLoad,
+        UpLoad
     },
     data () {
         return {
+            uploadProductList: [], // 上传图片列表
+            uploadProductDetail: [], // 商品详情          
             formData: {
                 categoryId: 0,
                 categoryParentId: 0,
@@ -221,7 +226,7 @@ export default {
         }
     },
     created () {
-        
+
     },
     mounted () {
         this.getMarks();
@@ -246,7 +251,23 @@ export default {
         catelogChange(type, item) {
             this.formData[type] = item.id;
             this[type] = item.id;
-        }
+        },
+        submit() {
+            
+            this.$refs.productListUpload.upload();
+            this.$refs.productDetailUpload.upload();
+            
+        },
+        productListUploaded(list) {
+            console.log(list, '11111');
+            this.formData.mainImage = list && list[0];
+            this.formData.subImages = list && list.length > 1 && list.slice(1).join(';') || '';
+        },
+        productDetailUploaded(list) {
+            console.log(list, '2222');
+            this.formData.details = list && list.join(';');
+        },
+
     }
 }
 </script>

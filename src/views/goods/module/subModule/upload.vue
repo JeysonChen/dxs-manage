@@ -1,61 +1,56 @@
 <template>
-    <div class="upload-box">
-        <el-upload
-            
-            action="#"
-            list-type="picture-card"
-            :auto-upload="false">
-            <i slot="default" class="el-icon-plus"></i>
-            <div class="el-upload__text"><p class="title-one">上传图片</p><p class="title-two">建议尺寸1000x1000</p></div>
-            
-            <div slot="file" slot-scope="{file}">
-                <img
-                    class="el-upload-list__item-thumbnail"
-                    :src="file.url" alt=""
-                >
-                <span class="el-upload-list__item-actions">
-                    <!-- 放大按钮 -->
-                    <span
-                        class="el-upload-list__item-preview"
-                        @click="handlePictureCardPreview(file)"
-                        >
-                        <i class="el-icon-zoom-in"></i>
-                    </span>
-                    <!-- 下载按钮 -->
-                    <!-- <span
-                        v-if="!disabled"
-                        class="el-upload-list__item-delete"
-                        @click="handleDownload(file)"
-                        >
-                        <i class="el-icon-download"></i>
-                    </span> -->
-                    <!-- 移出按钮 -->
-                    <span
-                        v-if="!disabled"
-                        class="el-upload-list__item-delete"
-                        @click="handleRemove(file)"
-                        >
-                        <i class="el-icon-delete"></i>
-                    </span>
-                </span>
-            </div>
-            
-        </el-upload>
-        <!-- 放大图 -->
-        <el-dialog :visible.sync="dialogVisible">
-            <img width="100%" :src="dialogImageUrl" alt="">
-        </el-dialog>
-    </div>
+    <el-upload
+        ref="upload"
+        :data="uploadForm"
+        :action="actionUrl"
+        :before-upload="beforeUpload"
+        list-type="picture-card"
+        :type="type"
+        :on-preview="handlePreview"
+        :on-remove="handleRemove"
+        :on-success="handlerSuccess"
+        :auto-upload="false">
+        <i slot="default" class="el-icon-plus"></i>
+        <div class="el-upload__text"><p class="title-one">{{title}}</p></div>
+
+        <div slot="tip" class="el-upload__tip">{{tips}}</div>
+    </el-upload>
 </template>
 
 <script>
+import {qiniuConfig} from '@/utils/qiniuConfig';
+const token = require('@/qiniu/qntoken.js');
 export default {
     name: 'upload',
     data () {
         return {
-            dialogImageUrl: '',
-            dialogVisible: false,
-            disabled: false
+            uploadForm: {
+                uploadToken: '',
+                domain: '',
+            },
+
+        }
+    },
+    props: {
+        refDom: {
+            type: String,
+            default: ''
+        },
+        type: {
+            type: String,
+            default: ''
+        },
+        tips: {
+            type: String,
+            default: ''
+        },
+        actionUrl: {
+            type: String,
+            default: ''
+        },
+        title: {
+            type: String,
+            default: ''
         }
     },
     created () {
@@ -65,16 +60,53 @@ export default {
         
     },
     methods: {
+        beforeUpload(file) {
+            let tokendata= {
+				ak: qiniuConfig.AccessKey,
+				sk: qiniuConfig.SecretKey,
+				bkt: qiniuConfig.Bucket,
+				cdn: qiniuConfig.Domain
+			};
+            this.uploadForm.token = token.token(tokendata);  //参数传入封装代码函数
+            this.uploadForm.key = Math.round(new Date() / 1000);
+        },
         handleRemove(file) {
             console.log(file);
         },
-        handlePictureCardPreview(file) {
-            this.dialogImageUrl = file.url;
-            this.dialogVisible = true;
-        },
-        handleDownload(file) {
+        handlePreview(file) {
             console.log(file);
+        },
+        handlerSuccess(response, file, fileList) {
+            debugger
+            let list = fileList && fileList.map(item => {
+                item.uploadFile = `${qiniuConfig.Domain}/${response.key}`;
+                return item.uploadFile;
+            });
+            this.$emit('handlerSuccess', list);
+        },
+        upload() {
+            debugger;
+            this.$refs.upload.submit();
         }
+        // 产品图上传成功
+        // productListUploaded(response, file, fileList) {
+        //     this.uploadProductList = fileList.map(item => {
+        //         item.uploadFile = `${qiniuConfig.Domain}/${response.key}`;
+        //         return item.uploadFile;
+        //     });
+        //     this.formData.mainImage = this.uploadProductList[0];
+        //     this.formData.subImages =  this.uploadProductList.length > 1 && this.uploadProductList.slice(1).join(';') || '';
+            
+        // },
+        // 商品详情上传成功
+        // productDetailUploaded(response, file, fileList) {
+        //     this.uploadProductDetail = fileList.map(item => {
+        //         item.uploadFile = `${qiniuConfig.Domain}/${response.key}`;
+        //         return item.uploadFile;
+        //     });
+        //     this.formData.details = this.uploadProductDetail.join(';');
+        // },
+        
     }
 }
 </script>
