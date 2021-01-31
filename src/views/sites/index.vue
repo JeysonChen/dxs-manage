@@ -1,27 +1,28 @@
 <template>
     <div>
-        <FormBox :formItem="formItem" :rules="rules" @add="add" />
+        <!-- 添加站点 -->
+        <FormBox :formItem="formItem" :rules="rules" :dataSet="dataSet" @add="add" />
 
-        <!-- <AddSite @addSucc="addSucc" /> -->
-        <CheckList/>
+        <!-- 站点列表 -->
+        <CheckList :tableTitle="tableTitle" />
     </div>
 </template>
 
 <script>
 import Api from '@/api';
 import FormBox from '@/components/formBox';
-// import AddSite from './module/addSite';
 import CheckList from './module/checkList';
-import {formItem, rules} from '@/utils/sites';
-import { 
-    CodeToText
-} from 'element-china-area-data';
+import {formItem, rules, tableTitle, dataSet} from '@/utils/sites';
+import { CodeToText} from 'element-china-area-data';
+
 export default {
     name: 'sites',
     data () {
         return {
             formItem: formItem,
-            rules: rules
+            rules: rules,
+            tableTitle: tableTitle,
+            dataSet: dataSet
         }
     },
     created () {
@@ -37,7 +38,7 @@ export default {
     },
     methods: {
         add(formData) {
-            console.log(formData, 'formData');
+            // console.log(formData, 'formData');
             Api.sites.add({
                 deliveryPointProvince: CodeToText[formData.deliveryPointAddressThree[0]],
                 deliveryPointCity: CodeToText[formData.deliveryPointAddressThree[1]],

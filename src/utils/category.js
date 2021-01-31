@@ -37,7 +37,7 @@ export const tableTitle = [
 export const formItem = [
     {
         type: 'input',
-        label: '标签名称',
+        label: '分类名称',
         prop: 'name',
         placeholder: ''
     },

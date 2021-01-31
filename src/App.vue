@@ -1,6 +1,10 @@
 <template>
 	<div id="app" class="dxs-wrapper">
-		<el-container style="flex-direction: column;">
+        <!-- 登录页面 -->
+        <Login v-if="!loginSuccess"/>
+
+        <!-- 后台区域 -->
+		<el-container v-else style="flex-direction: column;">
             <!-- 顶栏、头部 -->
             <!-- 数据传递：父传子 -->
             <header-menu :navData="navMenu" @changeNav="changeNav"/>
@@ -27,6 +31,7 @@ import {navMenu} from '@/utils/constant';
 export default {
 	data() {
 		return {
+            loginSuccess: true,// 控制登录页面
             navMenu: navMenu,   // 一级导航数据
             currentNav: {},     // 二级导航数据（对应当前选中的一级导航的二级数据
             

@@ -1,12 +1,13 @@
 <template>
     <div>
-        <!-- 添加标签 -->
+        <!-- 添加分类 -->
         <FormBox :formItem="formItem" :rules="rules" :dataSet="dataSet" @add="add" />
-        <!-- 标签列表 -->
+        <!-- 分类列表 -->
         <CheckList
             :tableTitle="tableTitle"
             :tableData="tableData"
             :loading="loading"
+            :dataSet="dataSet"
             :showPagigation="false"
             @handleSizeChange="handleSizeChange"
             @handleCurrentChange="handleCurrentChange"

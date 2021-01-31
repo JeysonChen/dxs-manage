@@ -1,5 +1,6 @@
 <template>
     <div>
+        <p class="item-title">{{dataSet.titleSet.listTitle}}</p>
         <el-table
             v-loading="loading"
             :data="tableData"
@@ -45,6 +46,7 @@
 <script>
 import Pagination from '../pagination';
 export default {
+    // 接受各父级（站点、团长、标签、分类）的传参(与data互斥)
     props: {
         loading: {
             type: Boolean,
@@ -65,6 +67,10 @@ export default {
         showPagigation: {
             type: Boolean,
             default: true
+        },
+        dataSet: {
+            type: Object,
+            default: () => {}
         }
     },
     components: {
