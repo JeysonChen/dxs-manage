@@ -1,192 +1,133 @@
 <template>
     <div>
-        <!-- 商品列表 -->
-        <el-table
-            v-loading="loading"
-            :data="tableData"
-            stripe
-            style="width: 100%">
-
-            <el-table-column
-                v-for="(item, index) in tableTitle"
-                :key="index"
-                :prop="item.prop"
-                :label="item.label"
-                :fixed="item.fixed"
-                :width="item.width">
-            </el-table-column>
-
-            <el-table-column
-                v-if="params === 'payed'"
-                fixed="right"
-                label="操作"
-                width="160">
-                <template slot-scope="scope">
-                    <el-button type="text" @click="handleClick(scope.row)">确认送达</el-button>
-                    <el-button type="text" size="mini">取消订单</el-button>
-                </template>
-            </el-table-column>
-        </el-table>
-        <!-- 页码 -->
-        <Pagination 
+        <!-- 分类列表 -->
+        <CheckList
+            :tableTitle="tableTitle"
+            :tableData="tableData"
+            :loading="loading"
+            :dataSet="dataSet"
+            :showPagigation="true"
             :pagination="pagination"
             @handleSizeChange="handleSizeChange"
             @handleCurrentChange="handleCurrentChange"
+            @handleTable="handleTable"
         />
+        <!-- <Dialog
+            ref="dialog"
+            title="编辑团长"
+            type="mark"
+            :rules="rules"
+            :form-item="formItem"
+            :form-data="dialogFormData"
+            @submit="submitDialog"
+
+        /> -->
     </div>
 </template>
 
 <script>
-import Pagination from '@/components/pagination';
-import {tableTitle, orderStatus} from '@/utils/order';
-import Api from '@/api'
+import FormBox from '@/components/formBox';
+import CheckList from '@/components/checkList'
+import Dialog from './module/dialog';
+import {orderStatus, dataSet, tableTitle, tableHandler} from '@/utils/order';
+import Api from '@/api';
+import MD5 from 'md5';
 export default {
-    name:'checkList',
-    // 接受父级传参
-    // props: {
-    //     params: {
-    //         type: String,
-    //         default: ''
-    //     }
-    // },
+    name: 'configure',
     components: {
-        Pagination
-    },
-    computed: {
-        // 监听页面（参数）传参的变化，
-        params() {
-            return this.$route.params.menu;
-        }
-    },
-    watch: {
-        params: {
-            handler(val,oldVal) {
-                // console.log(val,oldVal,'值');
-                this.pagination = {
-                    total: 1,
-                    currentPage: 1,
-                    pageSize:10
-                };
-                this.getData();
-            },
-            immediate: true
-        }
+        FormBox,
+        CheckList,
+        Dialog
     },
     data () {
         return {
-            loading: true,
-            // 商品部分--------------------
-            // 列表表头数据
-            tableTitle: tableTitle,
-            // 页码相关数据
+            // formItem: formItem,
+            // rules: rules,
+            dataSet: dataSet,
+            // tableTitle,
             pagination: {
-                total: 20,
+                total: 1,
                 currentPage: 1,
                 pageSize:10
             },
-            // 已上架商品数据
             tableData: [
-                {
-                    id: '001',
-                    name: '新鲜安全鸡蛋400g',
-                    price: '12',
-                    chief: '17345678765',
-                    time: '2021/01/04 22:00',
-                    stock: '23/100',
-                    views: 34,
-                    paynumber: 99,
-                    inversion: '34%',
-                    share: 456
-                },
-                {
-                    id: '002',
-                    name: '新鲜苹果400g',
-                    price: '12',
-                    chief: '17345678765',
-                    time: '2021/01/04 22:00',
-                    stock: '23/100',
-                    views: 34,
-                    paynumber: 99,
-                    inversion: '34%',
-                    share: 456
-                },
             ],
-
-            // 列表表格商品数据：已发布、已上架、已下架
-            downTableData: [
-                {
-                    id: '001',
-                    name: '新鲜安全鸡蛋400g',
-                    price: '12',
-                    chief: '17345678765',
-                    time: '2021/01/04 22:00',
-                    stock: '23/100',
-                    views: 34,
-                    paynumber: 99,
-                    inversion: '34%',
-                    share: 456
-                },
-                {
-                    id: '002',
-                    name: '新鲜苹果400g',
-                    price: '12',
-                    chief: '17345678765',
-                    time: '2021/01/04 22:00',
-                    stock: '23/100',
-                    views: 34,
-                    paynumber: 99,
-                    inversion: '34%',
-                    share: 456
-                },
-            ],
-
-            // 页码部分---------------------
-            total: 200,
-
+            loading: false,
+            showDialog: false,
+            dialogFormData: {},
+            activeName: 'first'
         }
     },
     created () {
-        // 获取商品列表数据
-        // this.getGoodsData();
-    },
-    mounted () {
         this.getData();
     },
-    methods: {
-
-        // 查看
-        handleClick(row) {
-            console.log(row);
+    computed: {
+        params() {
+            return this.$route.params.menu;
         },
-
-        // 判断不同状态，请求不同状态下的商品
+        tableTitle() {
+            return tableTitle.concat(tableHandler[this.params]);
+        }
+    },
+    methods: {
         getData() {
             this.loading = true;
-            console.log(this.params, 'params');
-            
-            Api.product.add({
-                index: this.pagination.currentPage,
-                size: this.pagination.pageSize,
-                status: orderStatus[this.params]
-            }).then(res => {
+            Api.order.search(
+                {
+                    status: orderStatus[this.params],
+                    userId: '',
+                    queryModel: '',
+                    size: this.pagination.pageSize,
+                    index: this.pagination.currentPage
+                }
+            ).then(({data}) => {
                 this.loading = false;
+                this.pagination.total = data.total;
+                this.tableData = data.records.map((item, index) => {
+                    item.index = index + 1;
+                    item.buyProducts = item.mallOrderDetailS.map(list => list.productName).join(',');
+                    item.quantityList = item.mallOrderDetailS.map(list => list.quantity);
+                    item.quantity = item.quantityList.reduce((pre, cur) => {
+                        return prev + cur;
+                    })
+                    return item;
+                });
             })
         },
-
-        // 改变页面容量
-        handleSizeChange(pageSize){
-            this.pagination.pageSize = pageSize;
-             this.getGoodsData();
+        handleTable(event, row) {
+            console.log(event, row, 'event');
+            switch(event) {
+                case 'edit':
+                    this.$refs.dialog.open();
+                    this.dialogFormData = row;
+                    break;
+                case 'del':
+                    Api.mark.delete({tagId: row.id}).then(res => {
+                        this.$message.success('删除成功');
+                    });
+                    break;
+            }
         },
-        // 改变当前页码
-        handleCurrentChange(currentPage){
-            this.pagination.currentPage = currentPage;
-            this.getGoodsData();
+        handleCurrentChange(currentPage) {
+            console.log(currentPage, 'currentPage')
+        },
+        handleSizeChange(pageSize) {
+            console.log(pageSize, 'pageSize')
+        },
+        // 编辑提交
+        submitDialog(val) {
+            console.log(val);
+            Api.mark.edit(val).then(res => {
+                console.log(res, '编辑mark');
+                this.$message.success('编辑成功')
+            })
         }
+
+
     }
 }
 </script>
 
-<style lang="less" scoped>
- 
+<style>
+
 </style>

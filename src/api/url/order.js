@@ -2,7 +2,7 @@
 export default {
     // 订单列表--已支付、已收货、已取消、退款（不同状态，同一接口）
     search: {
-        url: '/Order/mallOrder/Search',
+        url: '/Order/mallOrder/BgSearch',
         method: 'get'
     },
     // 确认送达（已支付）

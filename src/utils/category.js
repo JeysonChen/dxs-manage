@@ -12,57 +12,83 @@ export const tableTitle = [
     },
     {
         prop: 'markName',
-        label: '标签名称',
+        label: '分类名称',
         width: '',
         align: 'left',
         fixed: false
     },
-    {
-        prop: 'markNumber',
-        label: '标签编号',
-        width: '',
-        align: 'left',
-        fixed: false
-    },
-    {
-        prop: 'markStatus',
-        label: '标签状态',
-        width: '',
-        align: 'left',
-        fixed: false
-    }
+    // {
+    //     prop: 'markStatus',
+    //     label: '状态',
+    //     width: '',
+    //     align: 'left',
+    //     fixed: false
+    // }
 
 ];
-// 分类--form表单数据
-export const formItem = [
+// 分类--form表单数据-父类
+export const pFormItem = [
+    {
+        type: 'upload',
+        label: '分类图标',
+        prop: 'mainImage',
+        placeholder: '',
+        limit: 1
+    },
     {
         type: 'input',
         label: '分类名称',
         prop: 'name',
         placeholder: ''
     },
-    {
-        type: 'input',
-        label: '标签编号',
-        prop: 'sortOrder',
-        placeholder: ''
-    },
+    // {
+    //     type: 'select',
+    //     label: '分类状态',
+    //     prop: 'status',
+    //     placeholder: '请选择标签状态',
+    //     options: [
+    //         {
+    //             label: '正常',
+    //             value: 1
+    //         },
+    //         {
+    //             label: '已废弃',
+    //             value: 2
+    //         }
+    //     ]
+    // }
+];
+// 分类--form表单数据-字类
+export const formItem = [
     {
         type: 'select',
-        label: '标签状态',
-        prop: 'status',
-        placeholder: '请选择标签状态',
-        options: [
-            {
-                label: '正常',
-                value: 1
-            },
-            {
-                label: '已废弃',
-                value: 2
-            }
-        ]
-    }
+        label: '一级分类',
+        prop: 'parentId',
+        placeholder: '请选择一级分类',
+        options: []
+    },
+    {
+        type: 'input',
+        label: '分类名称',
+        prop: 'name',
+        placeholder: ''
+    },
+    // {
+    //     type: 'select',
+    //     label: '分类状态',
+    //     prop: 'status',
+    //     placeholder: '请选择标签状态',
+    //     options: [
+    //         {
+    //             label: '正常',
+    //             value: 1
+    //         },
+    //         {
+    //             label: '已废弃',
+    //             value: 2
+    //         }
+    //     ]
+    // }
 ];
 // 分类--form表单验证数据
 export const  rules = {
@@ -79,15 +105,27 @@ export const  rules = {
     ]
 }
 // 标签--form表单 el-form、标题等基础配置数据
+export const pDataSet = {
+    formSet: {
+        labelWidth: '80px',
+        labelPosition: 'right',
+        inline: false
+    },
+    titleSet: {
+        formTitle: '添加一级分类',
+        listTitle: '分类列表'
+    }
+    
+};
 export const dataSet = {
     formSet: {
         labelWidth: '80px',
         labelPosition: 'right',
-        inline: true
+        inline: false
     },
     titleSet: {
-        formTitle: '添加分类',
-        listTitle: '已添加分类'
+        formTitle: '添加二级分类',
+        listTitle: '分类列表'
     }
     
 }

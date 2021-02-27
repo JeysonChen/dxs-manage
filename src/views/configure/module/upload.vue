@@ -6,6 +6,7 @@
         :before-upload="beforeUpload"
         list-type="picture-card"
         :type="type"
+        :limit="limit"
         :on-preview="handlePreview"
         :on-remove="handleRemove"
         :on-success="handlerSuccess"
@@ -21,7 +22,7 @@
 import {qiniuConfig} from '@/utils/qiniuConfig';
 const token = require('@/qiniu/qntoken.js');
 export default {
-    name: 'Upload',
+    name: 'upload',
     data () {
         return {
             uploadForm: {
@@ -51,6 +52,10 @@ export default {
         title: {
             type: String,
             default: ''
+        },
+        limit: {
+            type: Number,
+            default: 10
         }
     },
     created () {
@@ -82,7 +87,6 @@ export default {
                 return item.uploadFile;
             });
             this.$emit('handlerSuccess', list);
-            this.$emit('input', list)
         },
         upload() {
             this.$refs.upload.submit();

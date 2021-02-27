@@ -31,9 +31,9 @@ module.exports = {
             // 站点模块、团长模块
             '/Account': {
 				target: 'https://www.dxduoxiansheng.com', //目标接口域名
-				changeOrigin: true, //是否跨域
-                secure: false, // 设置支持https协议的代理
-                changeOrigin: true,
+				// changeOrigin: true, //是否跨域
+                secure: true, // 设置支持https协议的代理
+                // changeOrigin: true,
             },
             // 订单模块
             '/Order': {
@@ -91,7 +91,7 @@ module.exports = {
 		requireModuleExtension: true,
 	},
 
-	publicPath: process.env.NODE_ENV !== 'development' ? '/meg-dw' : '',
+	publicPath: process.env.NODE_ENV !== 'development' ? './' : '',
 	assetsDir: 'static',
 	indexPath: 'index.html',
 	lintOnSave: false,

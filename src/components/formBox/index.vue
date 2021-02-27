@@ -3,7 +3,7 @@
  -->
 <template>
     <div>
-        <p class="item-title">{{dataSet.titleSet.formTitle}}</p>
+        <p class="item-title">{{dataSet.titleSet && dataSet.titleSet.formTitle}}</p>
         <el-form 
             :model="formData" 
             :rules="rules" 
@@ -12,7 +12,18 @@
             :label-position="dataSet.formSet.labelPosition"
             :inline="dataSet.formSet.inline"
             >
-            <template v-for="(item, index) in formItem" >
+            <template v-for="(item, index) in formItem">
+                <el-form-item v-if="item.type=='upload'" :label="item.label" :prop="item.prop" :key="index">
+                    <Upload
+                        ref="upload"
+                        v-model="formData[item.prop]"
+                        type="1"
+                        :limit="item.limit"
+                        actionUrl="https://upload-z2.qiniup.com"
+                        tips="只能上传jpg/png文件，默认第一张图为封面主图"
+                        @handlerSuccess="uploaded(item.prop, $event)"
+                    />
+                </el-form-item>
                 <el-form-item v-if="item.type=='cascader'" :label="item.label" :prop="item.prop" :key="index">
                     <el-cascader
                         :placeholder="item.placeholder"
@@ -26,6 +37,9 @@
                 <el-form-item v-if="item.type=='input'" :label="item.label" :prop="item.prop" :key="index">
                     <el-input v-model="formData[item.prop]" size="small"></el-input>
                 </el-form-item>
+                <el-form-item v-if="item.type=='password'" :label="item.label" :prop="item.prop" :key="index">
+                    <el-input type="password" v-model="formData[item.prop]" size="small"></el-input>
+                </el-form-item>
                 <el-form-item v-if="item.type=='select'" :label="item.label" :prop="item.prop" :key="index">
                     <el-select v-model="formData[item.prop]" :placeholder="item.placeholder" size="small">
                         <el-option
@@ -38,7 +52,7 @@
                 </el-form-item>
             </template>
             
-            <el-form-item>
+            <el-form-item v-if="showAddBtn">
                 <el-button type="primary" @click="onSubmit" size="small">确认添加</el-button>
             </el-form-item>
         </el-form>
@@ -46,6 +60,7 @@
 </template>
 
 <script>
+import Upload from '../../views/goods/module/subModule/upload';
 // 地区选择--省市区级联数据
 import { 
     provinceAndCityData, 
@@ -69,6 +84,14 @@ export default {
         dataSet: {
             type: Object,
             default: () => {}
+        },
+        showAddBtn: {
+            type: Boolean,
+            default: true
+        },
+        formDataInit: {
+            type: Object,
+            default: null
         }
     },
     data () {
@@ -78,7 +101,33 @@ export default {
 
         }
     },
+    components: {
+        Upload
+    },
+    watch: {
+        formDataInit: {
+            handler(val) {
+                if (val) {
+                    this.formData = {...val};
+                }
+            },
+            deep: true,
+            immediate: true
+        },
+        formData: {
+            handler(val) {
+                if (val) {
+                    this.$emit('formChange', val);
+                }
+            },
+            deep: true,
+            immediate: true
+        }
+    },
     methods: {
+        setInit() {
+            this.formData = {...this.formDataInit};
+        },
         onSubmit() {
             this.$refs.ruleForm.validate((valid) => {
                 if (valid) {
@@ -90,6 +139,9 @@ export default {
                     return false;
                 }
             });
+        },
+        uploaded(prop, list) {
+            console.log(prop, list, 'prop, list')
         }
     }
 }

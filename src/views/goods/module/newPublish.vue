@@ -13,7 +13,6 @@
                                     type="1"
                                     actionUrl="https://upload-z2.qiniup.com"
                                     tips="只能上传jpg/png文件，默认第一张图为封面主图"
-                                    title="上传图片"
                                     @handlerSuccess="productListUploaded"
                                 />
                             </el-form-item>
@@ -32,7 +31,7 @@
                         <div class="item mark-box">
                             <p class="item-title">产品标签</p>
                             <el-form-item>
-                                <el-select size="small" v-model="formData.marks" multiple placeholder="请选择" >
+                                <el-select size="small" v-model="formData.tagIds" multiple placeholder="请选择" >
                                     <el-option
                                         v-for="item in marks"
                                         :key="item.id"
@@ -100,7 +99,7 @@
                                 <el-button
                                     size="mini"
                                     :type="categoryId === item.id ? 'primary' : ''"
-                                    v-for="(item, index) in parentCatelogList"
+                                    v-for="(item, index) in subCatelogList"
                                     :key="index"
                                     @click="catelogChange('categoryId', item)"
                                 >{{item.name}}</el-button>
@@ -241,22 +240,54 @@ export default {
         },
         // 获取所有分类
         getCatelogList() {
-            Api.product.getCategoryList().then(res => {
-                console.log(res, 'fenlei');
-                this.parentCatelogList = res.data.filter(item => item.parentId === 0);
-                this.categoryParentId = this.parentCatelogList[0].id;
+            Api.category.listTree().then(({data}) => {
+                console.log(data, 'fenlei');
+                this.parentCatelogList = data;
             })
         },
         // 分类
         catelogChange(type, item) {
             this.formData[type] = item.id;
             this[type] = item.id;
+            if (type === 'categoryParentId') {
+                this.subCatelogList = this.parentCatelogList.filter(i => i.id === item.id)[0].children;
+            }
         },
-        submit() {
-            
-            this.$refs.productListUpload.upload();
-            this.$refs.productDetailUpload.upload();
-            
+        async submit() {
+
+            let params = {
+                categoryId: Number(this.formData.categoryId),
+                categoryParentId: Number(this.formData.categoryParentId),
+                costPrice: Number(this.formData.costPrice),
+                details: this.formData.details,
+                groupOwnerEarnings: Number(this.formData.groupOwnerEarnings),
+                groupOwnerId: Number(this.formData.groupOwnerId),
+                helphairEarnings: Number(this.formData.helphairEarnings),
+                mainImage: this.formData.subImages,
+                maxBuyQuantity: Number(this.formData.maxBuyQuantity),
+                monthlySales: Number(this.formData.monthlySales),
+                name: this.formData.title,
+                originPrice: Number(this.formData.originPrice),
+                promotionIds: this.formData.promotionIds,
+                salePrice: Number(this.formData.salePrice),
+                shareEarnings: Number(this.formData.shareEarnings),
+                status: this.formData.status,
+                stockQuantity: Number(this.formData.stockQuantity),
+                stockStatus: Number(this.formData.stockStatus),
+                strategyIds: this.formData.strategyIds,
+                subImages: this.formData.subImages,
+                subtitle: this.formData.subtitle,
+                tagIds: this.formData.tagIds,
+                transportCosts: Number(this.formData.transportCosts)
+            }
+            console.log(params, '99')
+            await this.$refs.productListUpload.upload();
+            await this.$refs.productDetailUpload.upload();
+            console.log(this.formData, '上传参数');
+            Api.product.add(params).then(({data}) => {
+                console.log(data, 'tijandj')
+                this.$message.success('发布成功');
+            })
         },
         productListUploaded(list) {
             console.log(list, '11111');
@@ -266,6 +297,10 @@ export default {
         productDetailUploaded(list) {
             console.log(list, '2222');
             this.formData.details = list && list.join(';');
+            console.log(this.formData);
+            Api.product.add(this.formData).then(res => {
+                console.log('res', res);
+            })
         },
 
     }

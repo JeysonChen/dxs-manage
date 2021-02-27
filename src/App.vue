@@ -1,7 +1,7 @@
 <template>
 	<div id="app" class="dxs-wrapper">
         <!-- 登录页面 -->
-        <Login v-if="!loginSuccess"/>
+        <Login v-if="!isAuthenticated"/>
 
         <!-- 后台区域 -->
 		<el-container v-else style="flex-direction: column;">
@@ -34,8 +34,6 @@ export default {
             loginSuccess: true,// 控制登录页面
             navMenu: navMenu,   // 一级导航数据
             currentNav: {},     // 二级导航数据（对应当前选中的一级导航的二级数据
-            
-            
 		}
 	},
 	components: {
@@ -47,6 +45,9 @@ export default {
     computed: {
         defaultValue() {
             console.log(this.$route, '44')
+        },
+        isAuthenticated() {
+            return localStorage.getItem('isAuthenticated');
         }
     },
 

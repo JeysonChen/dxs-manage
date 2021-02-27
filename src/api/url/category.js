@@ -1,7 +1,7 @@
 // 配置--分类接口
 export default {
     // 分类树
-    listtree: {
+    listTree: {
         url: '/Product/mallCategory/ListTree',
         method: 'post'
     },

@@ -37,6 +37,7 @@ export default api => {
     api.variables = matches ? matches.map(item => item.substring(2, item.length - 1)) : [];
 
     return (params, Option = {}) => {
+        console.log(Option, 'ioopt')
         // 这个应该最先被执行
         // if (!(params instanceof FormData)) {
         //     params = params && new DateAdapter(params, api.rules && api.rules.req);
@@ -53,8 +54,8 @@ export default api => {
         api.variables.forEach(item => {
             delete params[item];
         });
-
         let {path, payload} = Option;
+        console.log(payload, 'payload')
         let localUrl = api.reUrl || api.url;
         let url = path ? localUrl + path : localUrl;
         // if (!api.noPrefix) {
@@ -65,6 +66,10 @@ export default api => {
             url,
             method,
             ...payload,
+            headers: {
+                ...Option,
+                'X-Access-Token': localStorage.getItem('token') || ''
+            },
             [method === 'get' ? 'params' : 'data']: params
         }).then(({data}) => {
             // 0 是ok

@@ -12,7 +12,8 @@
                     :key="item.prop"
                     :prop="item.prop"
                     :label="item.label"
-                    :width="item.width">
+                    :width="item.width"
+                    :fixed="item.fixed">
                 </el-table-column>
                 <el-table-column
                     v-else

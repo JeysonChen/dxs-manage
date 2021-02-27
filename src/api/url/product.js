@@ -15,14 +15,33 @@ export default {
         method: 'post'
     },
     // 下架商品
-    onsale: {
-        url: '/Product/mallProduct/Delete',
+    soldOut: {
+        url: '/Product/mallProduct/SoldOut',
         method: 'post'
     },
+    // 上架商品
+    shelves: {
+        url: '/Product/mallProduct/Shelves',
+        method: 'post'
+    },
+    
     getCategoryList: {
         url: '/Product/mallCategory/List',
         method: 'post'
     },
+    listTree: {
+        url: '/Product/mallCategory/ListTree',
+        method: 'post'
+    },
+    searchFromManager: {
+        url: '/Product/mallProduct/SearchFromManager',
+    },
+    delete: {
+        url: '/Product/mallProduct/Delete',
+        method: 'post'
+    },
+    
+    
     // 上架商品
     // offsale: {
     //     url: '',

@@ -13,19 +13,31 @@
             @handleCurrentChange="handleCurrentChange"
             @handleTable="handleTable"
         />
+        <Dialog
+            ref="dialog"
+            title="编辑标签"
+            type="mark"
+            :rules="rules"
+            :form-item="formItem"
+            :form-data="dialogFormData"
+            @submit="submitDialog"
+
+        />
     </div>
 </template>
 
 <script>
 import FormBox from '@/components/formBox';
 import CheckList from '@/components/checkList'
+import Dialog from './dialog';
 import {formItem, rules, dataSet, tableTitle} from '@/utils/mark';
 import Api from '@/api';
 export default {
     name: 'configure',
     components: {
         FormBox,
-        CheckList
+        CheckList,
+        Dialog
     },
     data () {
         return {
@@ -39,7 +51,9 @@ export default {
                 pageSize:10
             },
             tableData: [],
-            loading: false
+            loading: false,
+            showDialog: false,
+            dialogFormData: {}
         }
     },
     created () {
@@ -57,8 +71,8 @@ export default {
                 console.log(res,'提交成功')
                 // 消息提示--添加成功
                 this.$message.success('添加成功')
-                this.$refs.checkList.pagination.currentPage = 1;
-                this.$refs.checkList.getData();
+                this.pagination.currentPage = 1;
+                this.getData();
             }).catch(err => {
                 this.$message.error('添加失败');
             })
@@ -75,9 +89,24 @@ export default {
             console.log(event, row, 'event');
             switch(event) {
                 case 'edit':
-                    Api.mark.edit(row).then(res => {
-                        console.log(res, '编辑mark')
+                    this.$refs.dialog.open();
+                    this.dialogFormData = row;
+                    break;
+                case 'del':
+                    let param = new URLSearchParams();
+                    param.append("tagId", row.id);
+                    this.$confirm('确认删除？')
+                    .then(_ => {
+                        Api.mark.delete(param, {
+                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                        }).then(res => {
+                            this.$message.success('删除成功');
+                            this.getData();
+                        });
                     })
+                    .catch(_ => {});
+                    
+                    break;
             }
         },
         handleCurrentChange(currentPage) {
@@ -85,6 +114,15 @@ export default {
         },
         handleSizeChange(pageSize) {
             console.log(pageSize, 'pageSize')
+        },
+        // 编辑提交
+        submitDialog(param) {
+            console.log(param, '90909');
+            Api.mark.edit(param).then(res => {
+                console.log(res, '编辑mark');
+                this.$message.success('编辑成功');
+                this.getData();
+            });
         }
 
 

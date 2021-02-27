@@ -11,11 +11,11 @@ export const navMenu = [
                 label: '发布商品',
                 value: 'publishing',
             },
-            {
-                parent: 'goods',
-                label: '已发布',
-                value: 'published',
-            },
+            // {
+            //     parent: 'goods',
+            //     label: '已发布',
+            //     value: 'published',
+            // },
             {
                 parent: 'goods',
                 label: '已上架',

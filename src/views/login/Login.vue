@@ -10,11 +10,11 @@
                 label-width="70px" 
                 size="small"
                 >
-                <el-form-item label="用户名" prop="userName">
-                    <el-input v-model="ruleForm.userName"></el-input>
+                <el-form-item label="用户名" prop="username">
+                    <el-input v-model="ruleForm.username"></el-input>
                 </el-form-item>
-                <el-form-item label="密码" prop="passWord">
-                    <el-input v-model="ruleForm.passWord" show-password></el-input>
+                <el-form-item label="密码" prop="password">
+                    <el-input v-model="ruleForm.password" show-password></el-input>
                 </el-form-item>
                 <el-form-item label-width="0px" class="btn-box">
                     <el-button type="primary" @click="submitForm">登录</el-button>
@@ -25,21 +25,23 @@
 </template>
 
 <script>
+import Api from '@/api';
+import axios from 'axios'
 export default {
 	name: 'Login',
 	components: {},
     data () {
         return {
             ruleForm: {
-                userName: '',
-                passWord: ''
+                username: '18660626629',  // dsx888
+                password: 'dsx888'  // 18660626629
             },
             rules: {
-                userName: [
+                username: [
                     { required: true, message: '请输入用户名', trigger: 'blur' },
                     // { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
                 ],
-                passWord: [
+                password: [
                     { required: true, message: '请输入密码', trigger: 'blur' },
                     // { min: 3, max: 5, message: '长度在 3 到 5 个字符', trigger: 'blur' }
                 ]
@@ -52,9 +54,25 @@ export default {
         submitForm() {
             this.$refs.ruleForm.validate((valid) => {
                 if (valid) {
-                    this.$router.push({ path: '/goods/Publish' })
-                } else {
+                    let param = new URLSearchParams();
+                    param.append("username", this.ruleForm.username);
+                    param.append("password", this.ruleForm.password);
+                    Api.mallUser.login(
+                        param,
+                        {
+                            'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
+                        }
+                    ).then(res => {
+                        console.log(res);
+                        localStorage.setItem('isAuthenticated', true);
+                        localStorage.setItem('token', res.data.token);
+                        localStorage.setItem('userInfo', JSON.stringify(res.data.user));
+                        this.$router.push({ path: '/goods/Publish' })
+                    });
                     
+                }
+                else {
+
                     return false;
                 }
             });

@@ -6,10 +6,17 @@ export default {
     //     method: ''
     // },
     // // 添加团长
-    // add: {
-    //     url: '',
-    //     method: ''
-    // },
+    add: {
+        url: '/Account/mallUser/Add',
+        method: 'post'
+    },
+    login: {
+        url: '/Account/mallUser/BgLogin',
+        method: 'post'
+    },
+    list: {
+        url: '/Account/mallUser/list',
+    },
     // // 删除团长
     // delete: {
     //     url: '',

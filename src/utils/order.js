@@ -3,7 +3,7 @@ export const tableTitle = [
     {
         prop: 'orderNo',
         label: '订单号',
-        width: 140,
+        width: 160,
         align: 'left',
         fixed: true
     },
@@ -28,29 +28,29 @@ export const tableTitle = [
         align: 'center',
         fixed: false
     },
+    // {
+    //     prop: 'deliveryPointMobile',
+    //     label: '站点电话',
+    //     width: 100,
+    //     align: 'center',
+    //     fixed: false
+    // },
     {
-        prop: 'deliveryPointMobile',
-        label: '站点电话',
-        width: 100,
-        align: 'center',
-        fixed: false
-    },
-    {
-        prop: 'productName',
+        prop: 'buyProducts',
         label: '购买商品',
         width: 160,
         align: 'right',
         fixed: false
     },
     {
-        prop: 'productNum',
+        prop: 'quantity',
         label: '数量',
         width: 100,
         align: 'right',
         fixed: false
     },
     {
-        prop: 'paymentTypeList',
+        prop: 'tradeType',
         label: '支付方式',
         width: 100,
         align: 'right',
@@ -63,15 +63,15 @@ export const tableTitle = [
         align: 'right',
         fixed: false
     },
+    // {
+    //     prop: 'paymentTime',
+    //     label: '支付时间',
+    //     width: 160,
+    //     align: 'right',
+    //     fixed: false
+    // },
     {
-        prop: 'paymentTime',
-        label: '支付时间',
-        width: 160,
-        align: 'right',
-        fixed: false
-    },
-    {
-        prop: 'share',
+        prop: 'orderType',
         label: '来自',
         width: 80,
         align: 'right',
@@ -79,11 +79,58 @@ export const tableTitle = [
     }
 
 ];
+export const tableHandler = {
+    payed: {
+        prop: 'handler',
+        label: '操作',
+        width: 160,
+        align: 'left',
+        fixed: 'right',
+        buttonList: [
+            {
+                label: '确认送达',
+                identity: 'confirmDeliver'
+            },
+            {
+                label: '取消订单',
+                identity: 'cancelOrder'
+            }
+        ]
+    },
+    received: {},
+    canceled: {},
+    refund: {
+        prop: 'handler',
+        label: '操作',
+        width: 100,
+        align: 'left',
+        fixed: 'right',
+        buttonList: [
+            {
+                label: '确认退款',
+                identity: 'confirmRefund'
+            }
+        ]
+    }
+}
 
 // 订单列表分类--不同状态：已支付、已收货、已取消、退款 
 export const orderStatus = {
-    'payed': 1,
+    'payed': 30,
     'received': 2,
     'canceled': 3,
     'refund': 4
 };
+
+export const dataSet = {
+    formSet: {
+        labelWidth: '80px',
+        labelPosition: 'right',
+        inline: true
+    },
+    titleSet: {
+        formTitle: '',
+        listTitle: '订单列表'
+    }
+    
+}
