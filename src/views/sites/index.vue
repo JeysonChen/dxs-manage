@@ -1,32 +1,42 @@
 <template>
     <div>
-        <!-- 添加分类 -->
-        <FormBox :formItem="formItem" :rules="rules" :dataSet="dataSet" @add="add" />
-        <!-- 分类列表 -->
-        <CheckList
-            :tableTitle="tableTitle"
-            :tableData="tableData"
-            :loading="loading"
-            :dataSet="dataSet"
-            :showPagigation="false"
-            @handleSizeChange="handleSizeChange"
-            @handleCurrentChange="handleCurrentChange"
-            @handleTable="handleTable"
-        />
-        <Dialog
-            ref="dialog"
-            title="编辑站点"
-            type="mark"
-            :rules="rules"
-            :form-item="formItem"
-            :form-data="dialogFormData"
-            @submit="submitDialog"
+         <el-tabs v-model="activeName">
+            <el-tab-pane label="站点列表" name="first">
+                <!-- 分类列表 -->
+                <CheckList
+                    :tableTitle="tableTitle"
+                    :tableData="tableData"
+                    :loading="loading"
+                    :dataSet="dataSet"
+                    :showPagigation="true"
+                    :pagination="pagination"
+                    @handleSizeChange="handleSizeChange"
+                    @handleCurrentChange="handleCurrentChange"
+                    @handleTable="handleTable"
+                />
+                <Dialog
+                    ref="dialog"
+                    title="编辑站点"
+                    type="mark"
+                    :rules="rules"
+                    :form-item="formItem"
+                    :form-data="dialogFormData"
+                    @submit="submitDialog"
 
-        />
+                />
+            </el-tab-pane>
+            <el-tab-pane label="新增站点" name="second">
+                 <!-- 添加分类 -->
+                <FormBox :formItem="formItem" :rules="rules" :dataSet="dataSet" @add="add" />
+
+            </el-tab-pane>
+         </el-tabs>
+       
     </div>
 </template>
 
 <script>
+import { CodeToText, TextToCode } from 'element-china-area-data';
 import FormBox from '@/components/formBox';
 import CheckList from '@/components/checkList'
 import Dialog from './module/dialog';
@@ -53,7 +63,8 @@ export default {
             tableData: [],
             loading: false,
             showDialog: false,
-            dialogFormData: {}
+            dialogFormData: {},
+            activeName: 'first',
         }
     },
     created () {
@@ -64,11 +75,16 @@ export default {
     },
     methods: {
         add(formData) {
-            Api.mark.add(
+            let [deliveryPointProvince, deliveryPointCity, deliveryPointDistrict] = formData.deliveryPointAddressThree;
+            Object.assign(formData, {
+                deliveryPointProvince: CodeToText[deliveryPointProvince],
+                deliveryPointCity: CodeToText[deliveryPointCity],
+                deliveryPointDistrict: CodeToText[deliveryPointDistrict]
+            });
+            delete formData.deliveryPointAddressThree;
+            Api.sites.add(
                 formData
             ).then(res => {
-                console.log(this, 'this')
-                console.log(res,'提交成功')
                 // 消息提示--添加成功
                 this.$message.success('添加成功')
                 this.pagination.currentPage = 1;
@@ -77,12 +93,30 @@ export default {
                 this.$message.error('添加失败');
             })
         },
+        search() {
+            this.pagination.currentPage = 1;
+            this.getData();
+        },
         getData() {
             this.loading = true;
-            Api.mark.list().then(res => {
-                console.log(res, 'ressf')
+            Api.sites.list(
+                {
+                    pageSize: this.pagination.pageSize,
+                    pageNo: this.pagination.currentPage
+                }
+            ).then(({data}) => {
+                console.log(data, 'ressf')
                 this.loading = false;
-                this.tableData = res.data;
+                this.tableData = data.records.map((item, index) => {
+                    item.index = index + 1;
+                    // item.deliveryPointAddressThree = [
+                    //     TextToCode[item.deliveryPointProvince],
+                    //     TextToCode[item.deliveryPointProvince][item.deliveryPointCity],
+                    //     TextToCode[item.deliveryPointProvince][item.deliveryPointCity][item.deliveryPointDistrict]
+                    // ];
+                    return item;
+                });
+                this.pagination.total = data.total;
             })
         },
         handleTable(event, row) {
@@ -93,11 +127,13 @@ export default {
                     this.dialogFormData = row;
                     break;
                 case 'del':
-                    let param = new URLSearchParams();
-                    param.append("tagId", row.id);
+                    // let param = new URLSearchParams();
+                    // param.append("deliveryPointId", row.id);
                     this.$confirm('确认删除？')
                     .then(_ => {
-                        Api.mark.delete(param, {
+                        Api.sites.delete({
+                            deliveryPointId: row.id
+                        }, {
                             'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
                         }).then(res => {
                             this.$message.success('删除成功');
@@ -110,17 +146,22 @@ export default {
             }
         },
         handleCurrentChange(currentPage) {
-            console.log(currentPage, 'currentPage')
+            console.log(currentPage, 'currentPage');
+            this.pagination.currentPage = currentPage;
+            this.getData();
         },
         handleSizeChange(pageSize) {
-            console.log(pageSize, 'pageSize')
+            console.log(pageSize, 'pageSize');
+            this.pagination.pageSize = pageSize;
+            this.getData();
         },
         // 编辑提交
         submitDialog(param) {
             console.log(param, '90909');
-            Api.mark.edit(param).then(res => {
+            Api.sites.edit(param).then(res => {
                 console.log(res, '编辑mark');
                 this.$message.success('编辑成功');
+                this.pagination.currentPage = 1;
                 this.getData();
             });
         }

@@ -14,6 +14,7 @@
 import NewPublish from './module/newPublish';
 import CheckList from './module/checkList';
 export default {
+    name: 'Goods',
     computed: {
         // 监听页面（参数）传参的变化，对页面实时展示不同的内容（params相当于定义的一个变量，实时监听变化的）
         params() {

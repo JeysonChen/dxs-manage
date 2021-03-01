@@ -14,6 +14,10 @@
                     :label="item.label"
                     :width="item.width"
                     :fixed="item.fixed">
+                    <template slot-scope="{row, column}">
+                        <span  v-if="column.property === 'refundImages' || column.property === 'avatar'"><img :src="row.refundImages && row.refundImages.split(',')[0] || row.avatar" width="30" alt=""></span>
+                        <span v-else>{{row[item.prop]}}</span>
+                    </template>
                 </el-table-column>
                 <el-table-column
                     v-else
@@ -22,19 +26,32 @@
                     :label="item.label"
                     :width="item.width">
                     <template slot-scope="{row}">
-                        <el-button
-                            type="text"
-                            size="mini"
-                            v-for="(btn, i) in item.buttonList" 
-                            @click="handleTable(btn.identity, row)" 
-                            :key='i'
-                        >{{btn.label}}</el-button>
+                        <template v-if="row.showBtnList">
+                            <el-button
+                                type="text"
+                                size="mini"
+                                v-for="(btn, i) in row.showBtnList" 
+                                @click="handleTable(btn.identity, row)" 
+                                :key='i'
+                                :disabled="btn.disabled"
+                            >{{btn.label}}</el-button>
+                        </template>
+                        <template v-else>
+                            <el-button
+                                type="text"
+                                size="mini"
+                                v-for="(btn, i) in item.buttonList" 
+                                @click="handleTable(btn.identity, row)" 
+                                :key='i'>
+                                {{row.isHidehandler ? row.replaceBtn : btn.label}}
+                            </el-button>
+                        </template>
+                        
                     </template>
                 </el-table-column>
             </template>
-           
         </el-table>
-         <!-- 页码 -->
+        <!-- 页码 -->
         <Pagination
             v-if="showPagigation"
             :pagination="pagination"
@@ -85,6 +102,7 @@ export default {
             this.$emit('handleSizeChange', pageSize);
         },
         handleCurrentChange(currentPage) {
+            console.log(currentPage, '0-0-0')
             this.$emit('handleCurrentChange', currentPage)
         }
     }

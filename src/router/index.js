@@ -7,7 +7,7 @@ const Sides = () => import('@/views/sites');
 const Order = () => import('@/views/order');
 const Chief = () => import('@/views/chief');
 const Configure = () => import('@/views/configure');
-
+const Cash = () => import('@/views/cash');
 Vue.use(VueRouter)
 
 const routes = [
@@ -63,6 +63,15 @@ const routes = [
         component: Configure,
         meta: { 
             name: 'configure'
+        }
+    },
+    // 配置---------------------------------------------------------------------
+    {
+		path: '/cash/:menu',
+		// name: 'Publish',
+        component: Cash,
+        meta: { 
+            name: 'cash'
         }
     }
 ]

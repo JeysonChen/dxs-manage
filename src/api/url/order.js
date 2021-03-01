@@ -5,9 +5,23 @@ export default {
         url: '/Order/mallOrder/BgSearch',
         method: 'get'
     },
-    // 确认送达（已支付）
-
-    // 取消订单（已支付）
-
+    paySearch: {
+        url: '/Order/mallPay/Search'
+    },
+    SearchRefound: {
+        url: '/Order/mallPay/SearchRefound'
+    },
+    audit: {
+        url: '/Order/mallOrder/Audit',
+        method: 'post'
+    },
+    edit: {
+        url: '/Order/mallPay/Edit',
+    },
+    cancelTakeMoney: {
+        url: '/Order/mallPay/cancelTakeMoney',
+    },
+    
+    
     
 }

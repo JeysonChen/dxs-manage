@@ -30,12 +30,12 @@ export default {
     methods: {
         // 向父组件发射数据
         // 改变页码容量
-        handleSizeChange() {
-            this.$emit('handleSizeChange', this.pagination.pageSize);
+        handleSizeChange(pageSize) {
+            this.$emit('handleSizeChange', pageSize);
         },
         // 改变当前页面
-        handleCurrentChange() {
-            this.$emit('handleCurrentChange', this.pagination.currentPage);
+        handleCurrentChange(currentPage) {
+            this.$emit('handleCurrentChange', currentPage);
         },
     }
 }

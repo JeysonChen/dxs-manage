@@ -91,5 +91,16 @@ export const navMenu = [
                 value: 'category'
             }
         ]
-    }
+    },
+    {
+        value: 'cash',
+        label: '提现',
+        children: [
+            {
+                parent: 'cash',
+                label: '提现申请',
+                value: 'applyCash'
+            }
+        ]
+    },
 ];

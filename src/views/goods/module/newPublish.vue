@@ -125,7 +125,7 @@
                         <div class="item price-area">
                             <p class="item-title">大团主</p>
                             <el-form-item prop="subtitle" class="pl-52">
-                                <el-input size="small" v-model="formData.shareEarnings" >
+                                <el-input size="small" v-model="formData.phone" >
                                     <template slot="prefix">手机号：</template>
                                 </el-input>
                             </el-form-item>
@@ -259,11 +259,11 @@ export default {
                 categoryId: Number(this.formData.categoryId),
                 categoryParentId: Number(this.formData.categoryParentId),
                 costPrice: Number(this.formData.costPrice),
-                details: this.formData.details,
+                detail: this.formData.details,
                 groupOwnerEarnings: Number(this.formData.groupOwnerEarnings),
                 groupOwnerId: Number(this.formData.groupOwnerId),
                 helphairEarnings: Number(this.formData.helphairEarnings),
-                mainImage: this.formData.subImages,
+                mainImage: this.formData.mainImage,
                 maxBuyQuantity: Number(this.formData.maxBuyQuantity),
                 monthlySales: Number(this.formData.monthlySales),
                 name: this.formData.title,
@@ -271,7 +271,7 @@ export default {
                 promotionIds: this.formData.promotionIds,
                 salePrice: Number(this.formData.salePrice),
                 shareEarnings: Number(this.formData.shareEarnings),
-                status: this.formData.status,
+                status: Number(this.formData.status),
                 stockQuantity: Number(this.formData.stockQuantity),
                 stockStatus: Number(this.formData.stockStatus),
                 strategyIds: this.formData.strategyIds,
@@ -279,7 +279,7 @@ export default {
                 subtitle: this.formData.subtitle,
                 tagIds: this.formData.tagIds,
                 transportCosts: Number(this.formData.transportCosts)
-            }
+            };
             console.log(params, '99')
             await this.$refs.productListUpload.upload();
             await this.$refs.productDetailUpload.upload();
@@ -287,6 +287,7 @@ export default {
             Api.product.add(params).then(({data}) => {
                 console.log(data, 'tijandj')
                 this.$message.success('发布成功');
+                this.$router.push({name: 'Goods', params: {menu: 'onsale'}})
             })
         },
         productListUploaded(list) {

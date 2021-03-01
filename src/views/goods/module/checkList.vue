@@ -12,22 +12,21 @@
             @handleCurrentChange="handleCurrentChange"
             @handleTable="handleTable"
         />
-        <!-- <Dialog
+        <Dialog
             ref="dialog"
-            title="编辑团长"
-            type="mark"
+            title="编辑商品"
             :rules="rules"
             :form-item="formItem"
             :form-data="dialogFormData"
             @submit="submitDialog"
 
-        /> -->
+        />
     </div>
 </template>
 
 <script>
 import CheckList from '@/components/checkList'
-// import Dialog from './module/dialog';
+import Dialog from './subModule/dialog';
 import {dataSet, tableTitle, goodsStatus, tableHandler} from '@/utils/goods';
 import Api from '@/api';
 import MD5 from 'md5';
@@ -35,7 +34,7 @@ export default {
     name: 'configure',
     components: {
         CheckList,
-        // Dialog
+        Dialog
     },
     data () {
         return {
@@ -142,7 +141,9 @@ export default {
             }
         },
         handleCurrentChange(currentPage) {
-            console.log(currentPage, 'currentPage')
+            console.log(currentPage, 'currentPage');
+            this.pagination.currentPage = currentPage;
+            this.getData();
         },
         handleSizeChange(pageSize) {
             console.log(pageSize, 'pageSize')

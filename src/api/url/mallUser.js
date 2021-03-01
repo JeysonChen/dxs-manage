@@ -17,6 +17,10 @@ export default {
     list: {
         url: '/Account/mallUser/list',
     },
+    edit: {
+        url: '/Account/mallUser/Edit',
+    },
+    
     // // 删除团长
     // delete: {
     //     url: '',

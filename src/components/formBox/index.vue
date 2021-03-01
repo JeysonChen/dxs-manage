@@ -18,6 +18,7 @@
                         ref="upload"
                         v-model="formData[item.prop]"
                         type="1"
+                        :file-list="formData.fileList"
                         :limit="item.limit"
                         actionUrl="https://upload-z2.qiniup.com"
                         tips="只能上传jpg/png文件，默认第一张图为封面主图"
@@ -92,6 +93,10 @@ export default {
         formDataInit: {
             type: Object,
             default: null
+        },
+        fileList: {
+            type: Array,
+            default: () => []
         }
     },
     data () {

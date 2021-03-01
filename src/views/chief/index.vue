@@ -161,6 +161,7 @@ export default {
                 case 'edit':
                     this.$refs.dialog.open();
                     this.dialogFormData = row;
+                    this.dialogFormData.fileList = [{url: row.avatar}]
                     break;
                 case 'del':
                     Api.mark.delete({tagId: row.id}).then(res => {
@@ -170,10 +171,14 @@ export default {
             }
         },
         handleCurrentChange(currentPage) {
-            console.log(currentPage, 'currentPage')
+            console.log(currentPage, 'currentPage');
+            this.pagination.currentPage = currentPage;
+            this.getData();
         },
         handleSizeChange(pageSize) {
-            console.log(pageSize, 'pageSize')
+            console.log(pageSize, 'pageSize');
+            this.pagination.pageSize = pageSize;
+            this.getData();
         },
         // 编辑提交
         submitDialog(val) {

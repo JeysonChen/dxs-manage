@@ -12,16 +12,13 @@
             @handleCurrentChange="handleCurrentChange"
             @handleTable="handleTable"
         />
-        <!-- <Dialog
+        <Dialog
             ref="dialog"
-            title="编辑团长"
-            type="mark"
-            :rules="rules"
-            :form-item="formItem"
+            title="退款审核"
+            type="refund"
             :form-data="dialogFormData"
-            @submit="submitDialog"
-
-        /> -->
+            @submitSucc="submitSucc"
+        />
     </div>
 </template>
 
@@ -29,7 +26,7 @@
 import FormBox from '@/components/formBox';
 import CheckList from '@/components/checkList'
 import Dialog from './module/dialog';
-import {orderStatus, dataSet, tableTitle, tableHandler} from '@/utils/order';
+import {orderStatus, dataSet, tableTitle, refundTableTitle, tableHandler} from '@/utils/order';
 import Api from '@/api';
 import MD5 from 'md5';
 export default {
@@ -66,33 +63,58 @@ export default {
             return this.$route.params.menu;
         },
         tableTitle() {
-            return tableTitle.concat(tableHandler[this.params]);
+            if (this.params === 'refund') {
+                return refundTableTitle.concat(tableHandler[this.params]);
+            } else {
+                return tableTitle.concat(tableHandler[this.params]);
+            }
         }
     },
     methods: {
         getData() {
+            
             this.loading = true;
-            Api.order.search(
-                {
-                    status: orderStatus[this.params],
-                    userId: '',
-                    queryModel: '',
+            if (this.params === 'refund') {
+                Api.order.SearchRefound({
                     size: this.pagination.pageSize,
                     index: this.pagination.currentPage
-                }
-            ).then(({data}) => {
-                this.loading = false;
-                this.pagination.total = data.total;
-                this.tableData = data.records.map((item, index) => {
-                    item.index = index + 1;
-                    item.buyProducts = item.mallOrderDetailS.map(list => list.productName).join(',');
-                    item.quantityList = item.mallOrderDetailS.map(list => list.quantity);
-                    item.quantity = item.quantityList.reduce((pre, cur) => {
-                        return prev + cur;
-                    })
-                    return item;
+                }).then(({data}) => {
+                    let statusInfo = {
+                        '0': '申请退款',
+                        '1': '审核通过',
+                        '2': '审核驳回'
+                    };
+                    this.loading = false;
+                    this.pagination.total = data.total;
+                    this.tableData = data.records.map(item => {
+                        item.statusInfo = statusInfo[item.status];
+                        item.isHidehandler = +item.status === 0;
+                        return item;
+                    });
                 });
-            })
+            } else {
+                Api.order.search(
+                    {
+                        status: orderStatus[this.params],
+                        userId: '',
+                        queryModel: '',
+                        size: this.pagination.pageSize,
+                        index: this.pagination.currentPage
+                    }
+                ).then(({data}) => {
+                    this.loading = false;
+                    this.pagination.total = data.total;
+                    this.tableData = data.records.map((item, index) => {
+                        item.index = index + 1;
+                        item.buyProducts = item.mallOrderDetailS.map(list => list.productName).join(',');
+                        item.quantityList = item.mallOrderDetailS.map(list => list.quantity);
+                        item.quantity = item.quantityList.reduce((pre, cur) => {
+                            return prev + cur;
+                        })
+                        return item;
+                    });
+                });
+            }
         },
         handleTable(event, row) {
             console.log(event, row, 'event');
@@ -106,13 +128,21 @@ export default {
                         this.$message.success('删除成功');
                     });
                     break;
+                case 'confirmRefund':
+                    this.$refs.dialog.open();
+                    this.dialogFormData = row;
+                    break;
             }
         },
         handleCurrentChange(currentPage) {
-            console.log(currentPage, 'currentPage')
+            console.log(currentPage, 'currentPage');
+            this.pagination.currentPage = currentPage;
+            this.getData();
         },
         handleSizeChange(pageSize) {
-            console.log(pageSize, 'pageSize')
+            console.log(pageSize, 'pageSize');
+            this.pagination.currentPage = currentPage;
+            this.getData();
         },
         // 编辑提交
         submitDialog(val) {
@@ -121,6 +151,9 @@ export default {
                 console.log(res, '编辑mark');
                 this.$message.success('编辑成功')
             })
+        },
+        submitSucc() {
+            this.getData();
         }
 
 

@@ -1,8 +1,8 @@
 // 站点接口
 export default {
     // 站点列表
-    fetchUserDeliveryPointInfo: {
-        url: '/Account/mallDeliveryPoint/FetchUserDeliveryPointInfo',
+    list: {
+        url: '/Account/mallDeliveryPoint/list',
         method: 'get'
     },
     // 添加站点
@@ -14,5 +14,10 @@ export default {
     delete: {
         url: '/Account/mallDeliveryPoint/Delete',
         method: 'get'
+    },
+    // 删除站点
+    edit: {
+        url: '/Account/mallDeliveryPoint/Edit',
+        method: 'post'
     }
 }

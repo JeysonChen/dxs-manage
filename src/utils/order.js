@@ -79,6 +79,60 @@ export const tableTitle = [
     }
 
 ];
+
+export const refundTableTitle = [
+    {
+        prop: 'orderNo',
+        label: '订单号',
+        width: 160,
+        align: 'left',
+        fixed: true
+    },
+    {
+        prop: 'auditTime',
+        label: '审核时间',
+        width: '160',
+        align: 'left',
+        fixed: false
+    },
+    {
+        prop: 'createTime',
+        label: '创建时间',
+        width: 160,
+        align: 'right',
+        fixed: false
+    },
+    {
+        prop: 'payment',
+        label: '退款金额',
+        width: '120',
+        align: 'center',
+        fixed: false
+    },
+    {
+        prop: 'refundImages',
+        label: '退款图片',
+        width: '160',
+        align: 'center',
+        fixed: false,
+        type: 'img'
+    },
+    {
+        prop: 'refundReason',
+        label: '退款原因',
+        width: '160',
+        align: 'center',
+        fixed: false
+    },
+    {
+        prop: 'statusInfo',
+        label: '退款状态',
+        width: '100',
+        align: 'center',
+        fixed: false
+    },
+    
+];
 export const tableHandler = {
     payed: {
         prop: 'handler',

@@ -4,6 +4,7 @@
         :data="uploadForm"
         :action="actionUrl"
         :before-upload="beforeUpload"
+        :file-list="fileList"
         list-type="picture-card"
         :type="type"
         :on-preview="handlePreview"
@@ -51,6 +52,10 @@ export default {
         title: {
             type: String,
             default: ''
+        },
+        fileList: {
+            type: Array,
+            default: () => []
         }
     },
     created () {
