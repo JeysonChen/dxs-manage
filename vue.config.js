@@ -41,8 +41,7 @@ module.exports = {
 				changeOrigin: true, //是否跨域
                 secure: false, // 设置支持https协议的代理
                 changeOrigin: true,
-            }
-            
+			},            
 		},
 	},
 	chainWebpack: (config) => {

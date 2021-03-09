@@ -17,10 +17,16 @@ export default {
     },
     edit: {
         url: '/Order/mallPay/Edit',
+        method: 'post'
     },
     cancelTakeMoney: {
         url: '/Order/mallPay/cancelTakeMoney',
     },
+    modify: {
+        url: '/Order/mallOrder/Modify',
+        method: 'post'
+    }
+    
     
     
     

@@ -29,35 +29,54 @@
             </el-col>
             <!-- user-out -->
             <el-col :span="6" class="user-out">
-                <span>13388889999</span>
-                <el-button size="small">退出登录</el-button>
+                <span>{{userInfo.phone || ''}}</span>
+                <el-button size="small" @click="loginOut">退出登录</el-button>
             </el-col>
         </el-row>
     </el-header>
 </template>
 
 <script>
+import Api from '@/api';
 export default {
     props: {
         navData: {
             type: Array,
             default: () => []
-        }
+        },
+        defaultValue: {
+            type: String,
+            default: 'goods'
+        },
+
     },
     data() {
         return {
-            defaultValue: 'goods',
+            // defaultValue: this.defaultValue,
             current: 0
         }
     },
-
+    computed: {
+        userInfo() {
+            return localStorage.getItem('userInfo') && JSON.parse(localStorage.getItem('userInfo'));
+        }
+    },
     methods: {
         // 切换菜单栏
         handleSelect(index) {
             this.$emit('changeNav', index);
-            this.defaultValue = index;
+            // this.defaultValue = index;
         },
-    }
+        loginOut() {
+            Api.mallUser.logout().then(res => {
+                this.$message.success('退出登录成功');
+                localStorage.setItem('userInfo', '');
+                localStorage.setItem('isAuthenticated', false);
+                localStorage.setItem('token', '');
+                this.$router.push({path: '/login'})
+            })
+        }
+    },
 }
 </script>
 <style lang="less" scoped>

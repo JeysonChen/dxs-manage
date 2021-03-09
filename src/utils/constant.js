@@ -50,6 +50,16 @@ export const navMenu = [
             },
             {
                 parent: 'order',
+                label: '已发货',
+                value: 'send'
+            },
+            {
+                parent: 'order',
+                label: '已送达',
+                value: 'arrived'
+            },
+            {
+                parent: 'order',
                 label: '已收货',
                 value: 'received'
             },

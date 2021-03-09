@@ -6,14 +6,15 @@
         direction="rtl"
         custom-class="edit-drawer"
         ref="drawer"
-        size="40%"
+        size="85%"
         >
         <div class="demo-drawer__content">
-            <new-publish /> 
-            <div class="demo-drawer__footer">
-            <el-button @click="submit(2)">审核驳回</el-button>
-            <el-button type="primary" @click="submit(1)">审核通过</el-button>
-            </div>
+            <new-publish
+                type="edit"
+                :edit-data="editData"
+                :product-img="productInfo.productImg"
+                :detail-img="productInfo.detailImg"
+            /> 
         </div>
     </el-drawer>
 </template>
@@ -33,7 +34,8 @@ export default {
                     inline: false,
                 },
             },
-            dialogFormData: {}
+            dialogFormData: {},
+            productInfo: {}
 
         }
     },
@@ -54,15 +56,45 @@ export default {
             default: () => {}
         },
     },
+    created () {
+        
+    },
+    computed: {
+        editData() {
+            return this.formData;
+        }
+    },
     methods: {
         handleClose() {
             this.close();
         },
         open() {
             this.dialog = true;
+            this.$nextTick(() => {
+                this.getProductDetail(this.editData.id);
+            })
+            
         },
         close() {
             this.dialog = false;
+        },
+        getProductDetail(id) {
+            Api.product.info({
+                productId: id
+            }).then(({data}) => {
+                this.productInfo = data;
+                let list1 = [data.mainImage].concat(data.subImages && data.subImages.split(','));
+                this.productInfo.productImg = list1.map(item => {
+                    return {
+                        url: item
+                    }
+                });
+                this.productInfo.detailImg = [...data.detail.split(',')].map(item => {
+                    return {
+                        url: item
+                    }
+                });
+            })
         },
         submit(n) {
             this.close();

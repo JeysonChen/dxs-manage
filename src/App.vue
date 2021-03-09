@@ -7,15 +7,14 @@
 		<el-container v-else style="flex-direction: column;">
             <!-- 顶栏、头部 -->
             <!-- 数据传递：父传子 -->
-            <header-menu :navData="navMenu" @changeNav="changeNav"/>
+            <header-menu :navData="navMenu" :defaultValue="defaultValue" @changeNav="changeNav"/>
             <!-- 下面内容 -->
             <el-container class="bottom-box">
                 <!-- 左侧栏导航 -->
-                <sider-menu :menuData="currentNav"/>
-                
+                <sider-menu :menuData="currentNav" :defaultValue="defaultSideMenu" />
+
                 <!-- 内容区 -->
                 <el-main class="main-box">
-                    {{defaultValue}}
                     <router-view />
                 </el-main>
             </el-container>
@@ -33,7 +32,8 @@ export default {
 		return {
             loginSuccess: true,// 控制登录页面
             navMenu: navMenu,   // 一级导航数据
-            currentNav: {},     // 二级导航数据（对应当前选中的一级导航的二级数据
+            currentNav: [],     // 二级导航数据（对应当前选中的一级导航的二级数据
+            defaultSideMenu: this.defaultValueSide
 		}
 	},
 	components: {
@@ -44,20 +44,40 @@ export default {
     },
     computed: {
         defaultValue() {
-            console.log(this.$route, '44')
+            return this.$route.meta.name;
+        },
+        defaultValueSide() {
+            console.log(this.$route.params.menu, 'this.$route.params.menu')
+            return this.$route.params.menu;
         },
         isAuthenticated() {
             return localStorage.getItem('isAuthenticated');
-        }
+        },
     },
-
+    watch: {
+        defaultValue(val) {
+            this.currentNav = navMenu.filter(item => item.value === val)[0].children;
+        },
+        // $route: {
+        //     handler(router) {
+        //         console.log(router, 'router');
+        //         this.defaultValue = router.menu.name;
+        //         this.defaultValueSide = router.params.menu;
+        //     },
+        //     deep: true,
+        //     immediate: true
+        // }
+    },
 	created() {
-        this.currentNav = navMenu[0].children;
+        // this.currentNav = navMenu[0].children;
     },
 	methods: {
         changeNav(index) {
+            console.log(this.$route, 'this.$route----')
             // 切换一级导航时，与二级导航做映射
-            this.currentNav = this.navMenu.filter(item => item.value === index)[0].children;
+            let curr = this.navMenu.filter(item => item.value === index);
+            this.currentNav = curr[0].children;
+            this.defaultSideMenu = curr[0].children[0].value;
             // 切换一级导航时，默认展示二级导航的第一个导航
             this.$router.push({ path: `/${this.currentNav[0].parent}/${this.currentNav[0].value}`});
         }

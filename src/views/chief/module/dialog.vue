@@ -86,7 +86,7 @@ export default {
         },
         submit() {
             this.close();
-            this.$emit('submit', this.type, this.dialogFormData);
+            this.$emit('submit', this.dialogFormData);
         },
         formChange(val) {
             this.dialogFormData = {...val};

@@ -40,6 +40,10 @@ export default {
         url: '/Product/mallProduct/Delete',
         method: 'post'
     },
+    info: {
+        url: '/Product/mallProduct/Info',
+    },
+    
     
     
     // 上架商品

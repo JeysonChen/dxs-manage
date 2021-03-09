@@ -4,7 +4,7 @@
 <template>
     <el-aside width="200px" class="aside-box">
         <el-menu
-            :default-active="defaultValue"
+            :default-active="defaultAction"
             class="el-menu-vertical-demo"
             @select="handleSelect">
             <el-menu-item :index="item.value" v-for="(item, index) in menuData" :key="index">
@@ -20,18 +20,37 @@ export default {
         menuData: {
             type: Array,
             default: () => []
+        },
+        defaultValue: {
+            type: String,
+            default: 'publishing'
         }
     },
     data() {
         return {
-           //  defaultValue: ''
+            defaultAction: this.defaultValue
         }
     },
     computed: {
-        defaultValue() {
-            return this.$route.params.menu;
+        // defaultValue() {
+        //     console.log(this.$route.params.menu, 'this.$route.params.menu')
+        //     return this.$route.params.menu;
+        // },
+    },
+    watch: {
+        $route: {
+            handler(val) {
+                console.log(val, '888');
+                if (val.params && val.params.menu) {
+                    this.defaultAction = val.params.menu;
+                    console.log(this.defaultAction);
+                }
+            },
+            deep: true,
+            immediate: true
         }
     },
+
     methods: {
         handleSelect(index) {
             let curr = this.menuData.filter(item => item.value === index)[0];

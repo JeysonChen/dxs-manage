@@ -107,7 +107,7 @@ export const formItem = [
     {
         type: 'password',
         label: '密码',
-        prop: 'password',
+        prop: 'password2',
         placeholder: ''
     },
 ];
@@ -125,7 +125,7 @@ export const  rules = {
     username: [
         { required: true, message: '请输入用户名', trigger: 'blur' },
     ],
-    password: [
+    password2: [
         { required: true, message: '请输入密码', trigger: 'blur' },
         { min: 6, max: 20, message: '长度在 6 到 20 个字符', trigger: 'blur' }
     ],

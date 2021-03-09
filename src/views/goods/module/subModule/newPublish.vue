@@ -11,7 +11,6 @@
                                 <UpLoad
                                     ref="productListUpload"
                                     type="1"
-                                    :file-list="productImg"
                                     actionUrl="https://upload-z2.qiniup.com"
                                     tips="只能上传jpg/png文件，默认第一张图为封面主图"
                                     @handlerSuccess="productListUploaded"
@@ -22,7 +21,7 @@
                         <div class="item title-box">
                             <p class="item-title">产品标题</p>
                             <el-form-item prop="title">
-                                <el-input v-model="formData.name" size="small" class="title" placeholder="主标题"></el-input>
+                                <el-input v-model="formData.title" size="small" class="title" placeholder="主标题"></el-input>
                             </el-form-item>
                             <el-form-item prop="subtitle">
                                 <el-input v-model="formData.subtitle" size="small" class="title" placeholder="副标题"></el-input>
@@ -126,7 +125,7 @@
                         <div class="item price-area">
                             <p class="item-title">大团主</p>
                             <el-form-item prop="subtitle" class="pl-52">
-                                <el-input size="small" v-model="formData.groupOwnerPhone" >
+                                <el-input size="small" v-model="formData.phone" >
                                     <template slot="prefix">手机号：</template>
                                 </el-input>
                             </el-form-item>
@@ -140,7 +139,6 @@
                                 class="upload-detail"
                                 ref="productDetailUpload"
                                 type="2"
-                                :file-list="detailImg"
                                 actionUrl="https://upload-z2.qiniup.com"
                                 tips="只能上传jpg/png文件，且不超过500kb"
                                 title="上传详情长图"
@@ -170,7 +168,7 @@ export default {
         return {
             uploadProductList: [], // 上传图片列表
             uploadProductDetail: [], // 商品详情          
-            formData1: {
+            formData: {
                 categoryId: 0,
                 categoryParentId: 0,
                 costPrice: 0,
@@ -195,7 +193,6 @@ export default {
                 tagIds: [],
                 transportCosts: 0
             },
-            productInfo: {},
             categoryParentId: 0, // 父类当前项
             categoryId: 0, // 子类当前项
             marks: [], // 标签列表
@@ -227,31 +224,8 @@ export default {
             }
         }
     },
-    computed: {
-        formData() {
-            if (this.type === 'edit') {
-                this.categoryParentId = this.editData.categoryParentId;
-            }
-            return this.type === 'edit' ? this.editData : this.formData1;
-        }
-    },
-    props: {
-        editData: {
-            type: Object,
-            default: () => {}
-        },
-        type: {
-            type: String,
-            default: 'add'
-        },
-        productImg: {
-            type: Array,
-            default: () => []
-        },
-        detailImg: {
-            type: Array,
-            default: () => []
-        }
+    created () {
+
     },
     mounted () {
         this.getMarks();
@@ -280,39 +254,23 @@ export default {
             }
         },
         async submit() {
-            debugger
-            await this.$refs.productListUpload.upload();
-            await this.$refs.productDetailUpload.upload();
-            // Api.product.add(params).then(({data}) => {
-            //     console.log(data, 'tijandj')
-            //     this.$message.success('发布成功');
-            //     this.$router.push({name: 'Goods', params: {menu: 'onsale'}})
-            // })
-        },
-        productListUploaded(list) {
-            console.log(list, '11111');
-            this.formData.mainImage = list && list[0];
-            this.formData.subImages = list && list.length > 1 && list.slice(1).join(';') || '';
-        },
-        productDetailUploaded(list) {
-            console.log(list, '2222');
-            this.formData.details = list && list.join(';');
+
             let params = {
                 categoryId: Number(this.formData.categoryId),
                 categoryParentId: Number(this.formData.categoryParentId),
-                costPrice: Number(this.formData.costPrice) * 10,
+                costPrice: Number(this.formData.costPrice),
                 detail: this.formData.details,
-                groupOwnerEarnings: Number(this.formData.groupOwnerEarnings) * 10,
-                groupOwnerId: JSON.parse(localStorage.getItem('userInfo')).id,
-                helphairEarnings: Number(this.formData.helphairEarnings) * 10,
+                groupOwnerEarnings: Number(this.formData.groupOwnerEarnings),
+                groupOwnerId: Number(this.formData.groupOwnerId),
+                helphairEarnings: Number(this.formData.helphairEarnings),
                 mainImage: this.formData.mainImage,
                 maxBuyQuantity: Number(this.formData.maxBuyQuantity),
                 monthlySales: Number(this.formData.monthlySales),
-                name: this.formData.name,
-                originPrice: Number(this.formData.originPrice) * 10,
+                name: this.formData.title,
+                originPrice: Number(this.formData.originPrice),
                 promotionIds: this.formData.promotionIds,
-                salePrice: Number(this.formData.salePrice) * 10,
-                shareEarnings: Number(this.formData.shareEarnings) * 10,
+                salePrice: Number(this.formData.salePrice),
+                shareEarnings: Number(this.formData.shareEarnings),
                 status: Number(this.formData.status),
                 stockQuantity: Number(this.formData.stockQuantity),
                 stockStatus: Number(this.formData.stockStatus),
@@ -323,21 +281,27 @@ export default {
                 transportCosts: Number(this.formData.transportCosts)
             };
             console.log(params, '99')
-            if (this.type === 'edit') {
-                debugger
-                Api.product.edit(params).then(res => {
-                    console.log('res', res);
-                    this.$message.success('编辑成功');
-                    this.$router.push({name: 'Goods', params: {menu: 'onsale'}})
-                });
-            }  else {
-                Api.product.add(params).then(res => {
-                    console.log('res', res);
-                    this.$message.success('发布成功');
-                    this.$router.push({name: 'Goods', params: {menu: 'onsale'}})
-                });
-            }
-            
+            await this.$refs.productListUpload.upload();
+            await this.$refs.productDetailUpload.upload();
+            console.log(this.formData, '上传参数');
+            Api.product.add(params).then(({data}) => {
+                console.log(data, 'tijandj')
+                this.$message.success('发布成功');
+                this.$router.push({name: 'Goods', params: {menu: 'onsale'}})
+            })
+        },
+        productListUploaded(list) {
+            console.log(list, '11111');
+            this.formData.mainImage = list && list[0];
+            this.formData.subImages = list && list.length > 1 && list.slice(1).join(';') || '';
+        },
+        productDetailUploaded(list) {
+            console.log(list, '2222');
+            this.formData.details = list && list.join(';');
+            console.log(this.formData);
+            Api.product.add(this.formData).then(res => {
+                console.log('res', res);
+            })
         },
 
     }

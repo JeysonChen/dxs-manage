@@ -1,11 +1,7 @@
 <template>
     <div>
         <el-tabs v-model="activeName">
-            <el-tab-pane label="新增团长" name="first">
-                <!-- 添加分类 -->
-                <FormBox :formItem="formItem" :rules="rules" :dataSet="dataSet" @add="add" />
-            </el-tab-pane>
-            <el-tab-pane label="团长列表" name="second">
+            <el-tab-pane label="团长列表" name="first">
                 <el-form
                     :model="formData" 
                     ref="ruleForm" 
@@ -60,11 +56,17 @@
 
                 />
             </el-tab-pane>
+            <el-tab-pane label="新增团长" name="second">
+                <!-- 添加分类 -->
+                <FormBox ref="chiefForm" :formItem="formItem" :rules="rules" :dataSet="dataSet" 
+                    @add="add" @fileList="getFileList"/>
+            </el-tab-pane>
         </el-tabs>
     </div>
 </template>
 
 <script>
+import crypto from 'crypto-js/md5';
 import FormBox from '@/components/formBox';
 import CheckList from '@/components/checkList'
 import Dialog from './module/dialog';
@@ -96,11 +98,13 @@ export default {
             dialogFormData: {},
             activeName: 'first',
             formData: {
+                avatar: '',
                 userName: '',
                 phone: '',
                 email: '',
                 time: []
-            }
+            },
+            type: 'add'
         }
     },
     created () {
@@ -110,22 +114,10 @@ export default {
         
     },
     methods: {
-        add(formData) {
-            if (formData.password) {
-                formData.password = MD5(formData.password);
-            }
-            Api.mallUser.add(
-                formData
-            ).then(res => {
-                console.log(this, 'this')
-                console.log(res,'提交成功')
-                // 消息提示--添加成功
-                this.$message.success('添加成功')
-                this.$refs.checkList.pagination.currentPage = 1;
-                this.$refs.checkList.getData();
-            }).catch(err => {
-                this.$message.error('添加失败');
-            })
+        async add(formData) {
+            this.formData = formData;
+            this.type = 'add';
+            await this.$refs.chiefForm.upload();
         },
         setParams() {
             let {time} = this.formData;
@@ -151,6 +143,7 @@ export default {
                 this.pagination.total = data.total;
                 this.tableData = data.records.map((item, index) => {
                     item.index = index + 1;
+                    item.password2 = item.password;
                     return item;
                 });
             })
@@ -164,9 +157,15 @@ export default {
                     this.dialogFormData.fileList = [{url: row.avatar}]
                     break;
                 case 'del':
-                    Api.mark.delete({tagId: row.id}).then(res => {
-                        this.$message.success('删除成功');
-                    });
+                    this.$confirm('确认删除？')
+                    .then(_ => {
+                        Api.mallUser.delete({userId: row.id}).then(res => {
+                            this.$message.success('删除成功');
+                            this.getData();
+                        });
+                    })
+                    .catch(_ => {});
+                    
                     break;
             }
         },
@@ -181,12 +180,45 @@ export default {
             this.getData();
         },
         // 编辑提交
-        submitDialog(val) {
+        async submitDialog(val) {
+            debugger
             console.log(val);
-            Api.mark.edit(val).then(res => {
-                console.log(res, '编辑mark');
-                this.$message.success('编辑成功')
-            })
+            this.formData = val;
+            this.type = 'edit';
+            // await this.$refs.chiefForm.upload();
+            this.add(val);
+            
+        },
+        async getFileList(list) {
+            this.formData.avatar = list && list[0];
+            if (this.formData.password2) {
+                this.formData.password = this.formData.password2;
+                delete this.formData.password2;
+            }
+            debugger;
+            if (this.type === 'edit') {
+                Api.mallUser.edit({
+                    id: this.formData.id,
+                    ...this.formData
+                }).then(res => {
+                    console.log(res, '编辑mark');
+                    this.$message.success('编辑成功');
+                    this.getData();
+                })
+            } else {
+                Api.mallUser.add(
+                    this.formData
+                ).then(res => {
+                    // 消息提示--添加成功
+                    this.activeName = 'first';
+                    this.$message.success('添加成功')
+                    this.pagination.currentPage = 1;
+                    this.getData();
+                }).catch(err => {
+                    this.$message.error('添加失败');
+                })
+            }
+            
         }
 
 

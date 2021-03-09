@@ -70,10 +70,15 @@ export default {
             }
         }
     },
+    watch: {
+        params() {
+            this.getData();
+        }
+    },
     methods: {
         getData() {
-            
             this.loading = true;
+            this.tableData = [];
             if (this.params === 'refund') {
                 Api.order.SearchRefound({
                     size: this.pagination.pageSize,
@@ -88,7 +93,7 @@ export default {
                     this.pagination.total = data.total;
                     this.tableData = data.records.map(item => {
                         item.statusInfo = statusInfo[item.status];
-                        item.isHidehandler = +item.status === 0;
+                        item.isHidehandler = +item.status !== 0;
                         return item;
                     });
                 });
@@ -108,9 +113,9 @@ export default {
                         item.index = index + 1;
                         item.buyProducts = item.mallOrderDetailS.map(list => list.productName).join(',');
                         item.quantityList = item.mallOrderDetailS.map(list => list.quantity);
-                        item.quantity = item.quantityList.reduce((pre, cur) => {
-                            return prev + cur;
-                        })
+                        item.quantity = item.quantityList.length > 0 && item.quantityList.reduce((pre, cur) => {
+                            return pre + cur;
+                        });
                         return item;
                     });
                 });
@@ -119,20 +124,64 @@ export default {
         handleTable(event, row) {
             console.log(event, row, 'event');
             switch(event) {
-                case 'edit':
-                    this.$refs.dialog.open();
-                    this.dialogFormData = row;
+                // 确认发货
+                case 'confirmSend':
+                    this.$confirm('确认发货？')
+                    .then(_ => {
+                        this.edit(row, 50);
+                    })
+                    .catch(_ => {});
                     break;
-                case 'del':
-                    Api.mark.delete({tagId: row.id}).then(res => {
-                        this.$message.success('删除成功');
-                    });
+                // 确认送达
+                case 'confirmDeliver':
+                    this.$confirm('确认送达？')
+                    .then(_ => {
+                        this.edit(row, 55);
+                    })
+                    .catch(_ => {});
+                    break;
+                case 'cancelOrder':
+                    this.$confirm('确认取消？')
+                    .then(_ => {
+                        this.edit(row, 40);
+                    })
+                    .catch(_ => {});
                     break;
                 case 'confirmRefund':
                     this.$refs.dialog.open();
                     this.dialogFormData = row;
                     break;
             }
+        },
+        // UNPAID(10, "unpaid", "未支付"),
+        // PAID_ING(20, "paid_ing", "支付中"),
+        // PAID(30, "paid", "支付成功"),
+        // CANCEL(40, "cancel", "交易取消"),
+        // FINISH(50, "finish", "已发货"),
+        // DELIVERY_POINT_FINISH(55, "delivery_point_finish", "货物已到取货点"),
+        // SHIPPED(60, "shipped", "确认收货"),
+        // AUTO_FINISH(70, "auto_finish", "自动确认收货"),
+        // REFOUND_APPLY(80, "refound_apply", "退款审核中"),
+        // NOT_SHIPPED_REFOUND_APPLY(81, "not_shipped_refound_apply", "未发货取消订单，退款申请"),
+        // REFOUND_FINISH(90, "refound_finish", "退款审核通过"),
+        // REFOUND_REJECT(100, "refound_reject", "退款审核驳回"),
+        // ORDER_COMPLETE(110, "order_complete", "交易完成"),
+        // ORDER_CLOSED(120, "order_closed", "交易关闭");
+        edit(row, num) {
+            let {id, orderNo, payPlatform, payPlatformTradeNo, paymentType, platformStatus} = row;
+            Api.order.modify({
+                id,
+                orderNo,
+                // payPlatform: row.orderType,
+                // payPlatformTradeNo,
+                // paymentType: row.tradeType,
+                // platformStatus,
+                status: num,
+            }).then(({data}) => {
+                console.log(data);
+                this.$message.success('更改成功');
+                this.getData();
+            })
         },
         handleCurrentChange(currentPage) {
             console.log(currentPage, 'currentPage');

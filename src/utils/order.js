@@ -137,7 +137,24 @@ export const tableHandler = {
     payed: {
         prop: 'handler',
         label: '操作',
-        width: 160,
+        width: 200,
+        align: 'left',
+        fixed: 'right',
+        buttonList: [
+            {
+                label: '确认发货',
+                identity: 'confirmSend'
+            },
+            {
+                label: '取消订单',
+                identity: 'cancelOrder'
+            }
+        ]
+    },
+    send: {
+        prop: 'handler',
+        label: '操作',
+        width: 200,
         align: 'left',
         fixed: 'right',
         buttonList: [
@@ -151,7 +168,27 @@ export const tableHandler = {
             }
         ]
     },
-    received: {},
+    arrived: {
+        prop: 'handler',
+        label: '操作',
+        width: 200,
+        align: 'left',
+        fixed: 'right',
+        buttonList: [
+            {
+                label: '取消订单',
+                identity: 'cancelOrder'
+            }
+        ]
+    },
+    received: {
+        prop: 'handler',
+        label: '操作',
+        width: 200,
+        align: 'left',
+        fixed: 'right',
+       
+    },
     canceled: {},
     refund: {
         prop: 'handler',
@@ -167,13 +204,29 @@ export const tableHandler = {
         ]
     }
 }
+// UNPAID(10, "unpaid", "未支付"),
+// PAID_ING(20, "paid_ing", "支付中"),
+// PAID(30, "paid", "支付成功"),
+// CANCEL(40, "cancel", "交易取消"),
+// FINISH(50, "finish", "已发货"),
+// DELIVERY_POINT_FINISH(55, "delivery_point_finish", "货物已到取货点"),
+// SHIPPED(60, "shipped", "确认收货"),
+// AUTO_FINISH(70, "auto_finish", "自动确认收货"),
+// REFOUND_APPLY(80, "refound_apply", "退款审核中"),
+// NOT_SHIPPED_REFOUND_APPLY(81, "not_shipped_refound_apply", "未发货取消订单，退款申请"),
+// REFOUND_FINISH(90, "refound_finish", "退款审核通过"),
+// REFOUND_REJECT(100, "refound_reject", "退款审核驳回"),
+// ORDER_COMPLETE(110, "order_complete", "交易完成"),
+// ORDER_CLOSED(120, "order_closed", "交易关闭");
 
 // 订单列表分类--不同状态：已支付、已收货、已取消、退款 
 export const orderStatus = {
     'payed': 30,
-    'received': 2,
-    'canceled': 3,
-    'refund': 4
+    'send': 50,
+    'arrived': 55,
+    'received': 60,
+    'canceled': 40,
+    'refund': 80
 };
 
 export const dataSet = {

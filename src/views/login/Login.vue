@@ -67,7 +67,7 @@ export default {
                         localStorage.setItem('isAuthenticated', true);
                         localStorage.setItem('token', res.data.token);
                         localStorage.setItem('userInfo', JSON.stringify(res.data.user));
-                        this.$router.push({ path: '/goods/Publish' })
+                        this.$router.push({ path: '/goods/publishing' })
                     });
                     
                 }

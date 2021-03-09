@@ -15,8 +15,6 @@
         <Dialog
             ref="dialog"
             title="编辑商品"
-            :rules="rules"
-            :form-item="formItem"
             :form-data="dialogFormData"
             @submit="submitDialog"
 
@@ -85,6 +83,12 @@ export default {
                 this.pagination.total = data.total;
                 this.tableData = data.records.map((item, index) => {
                     item.index = index + 1;
+                    item.groupOwnerEarnings = Number(item.groupOwnerEarnings) / 10;
+                    item.costPrice = Number(item.costPrice) / 10;
+                    item.helphairEarnings = Number(item.helphairEarnings) / 10;
+                    item.originPrice = Number(item.originPrice) / 10;
+                    item.shareEarnings = Number(item.shareEarnings) / 10;
+                    item.salePrice = Number(item.salePrice) / 10;
                     return item;
                 });
             })
@@ -95,6 +99,7 @@ export default {
                 case 'edit':
                     this.$refs.dialog.open();
                     this.dialogFormData = row;
+                    // this.getProductDetail(row.id);
                     break;
                 case 'del':
                     let param = new URLSearchParams();
@@ -146,7 +151,9 @@ export default {
             this.getData();
         },
         handleSizeChange(pageSize) {
-            console.log(pageSize, 'pageSize')
+            console.log(pageSize, 'pageSize');
+            this.pagination.pageSize = pageSize;
+            this.getData();
         },
         // 编辑提交
         submitDialog(val) {

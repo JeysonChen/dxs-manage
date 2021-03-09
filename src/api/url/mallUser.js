@@ -19,7 +19,16 @@ export default {
     },
     edit: {
         url: '/Account/mallUser/Edit',
+        method: 'post'
     },
+    logout: {
+        url: '/Account/mallUser/Logout',
+    },
+    delete: {
+        url: '/Account/mallUser/Delete',
+    },
+    
+    
     
     // // 删除团长
     // delete: {

@@ -1,6 +1,3 @@
- <!--
-    @describtion: form提交表单组件，站点、团长、标签、分类
- -->
 <template>
     <div>
         <p class="item-title">{{dataSet.titleSet && dataSet.titleSet.formTitle}}</p>
@@ -13,7 +10,7 @@
             :inline="dataSet.formSet.inline"
             >
             <template v-for="(item, index) in formItem">
-                <el-form-item v-if="item.type=='upload'" :label="item.label" :prop="item.prop" :key="index">
+                <el-form-item v-if="item.type=='upload'" :label="item.label" :prop="item.prop" :key="item.prop">
                     <Upload
                         ref="upload"
                         v-model="formData[item.prop]"
@@ -25,7 +22,7 @@
                         @handlerSuccess="uploaded(item.prop, $event)"
                     />
                 </el-form-item>
-                <el-form-item v-if="item.type=='cascader'" :label="item.label" :prop="item.prop" :key="index">
+                <el-form-item v-if="item.type=='cascader'" :label="item.label" :prop="item.prop" :key="item.prop">
                     <el-cascader
                         :placeholder="item.placeholder"
                         clearable
@@ -103,7 +100,6 @@ export default {
         return {
             formData: {},
             regionData: regionData,
-
         }
     },
     components: {
@@ -134,6 +130,12 @@ export default {
             this.formData = {...this.formDataInit};
         },
         onSubmit() {
+            // debugger
+            // let hasUpload = this.formItem.some(item => item.type === 'upload');
+            // if (hasUpload) {
+            //     debugger;
+            //     this.$refs.upload.upload();
+            // }
             this.$refs.ruleForm.validate((valid) => {
                 if (valid) {
                     // console.log(this.formData,'提交')
@@ -145,8 +147,13 @@ export default {
                 }
             });
         },
+        upload() {
+            console.log(this.$refs.upload, '----------')
+            this.$refs.upload[0].upload();
+        },
         uploaded(prop, list) {
-            console.log(prop, list, 'prop, list')
+            console.log(prop, list, 'prop, list');
+            this.$emit('fileList', list);
         }
     }
 }

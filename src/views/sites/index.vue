@@ -88,6 +88,7 @@ export default {
                 // 消息提示--添加成功
                 this.$message.success('添加成功')
                 this.pagination.currentPage = 1;
+                this.activeName = 'first';
                 this.getData();
             }).catch(err => {
                 this.$message.error('添加失败');
@@ -109,11 +110,11 @@ export default {
                 this.loading = false;
                 this.tableData = data.records.map((item, index) => {
                     item.index = index + 1;
-                    // item.deliveryPointAddressThree = [
-                    //     TextToCode[item.deliveryPointProvince],
-                    //     TextToCode[item.deliveryPointProvince][item.deliveryPointCity],
-                    //     TextToCode[item.deliveryPointProvince][item.deliveryPointCity][item.deliveryPointDistrict]
-                    // ];
+                    item.deliveryPointAddressThree = [
+                        TextToCode[item.deliveryPointProvince].code,
+                        TextToCode[item.deliveryPointProvince][item.deliveryPointCity].code,
+                        TextToCode[item.deliveryPointProvince][item.deliveryPointCity][item.deliveryPointDistrict].code
+                    ];
                     return item;
                 });
                 this.pagination.total = data.total;
