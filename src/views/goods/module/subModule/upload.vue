@@ -12,7 +12,8 @@
         :on-preview="handlePreview"
         :on-remove="handleRemove"
         :on-success="handlerSuccess"
-        :auto-upload="false">
+        :on-error="handlerError"
+        :auto-upload="true">
         <i slot="default" class="el-icon-plus"></i>
         <div class="el-upload__text"><p class="title-one">{{title}}</p></div>
 
@@ -59,6 +60,10 @@ export default {
         fileList: {
             type: Array,
             default: () => []
+        },
+        limit: {
+            type: [String, Number],
+            default: ''
         }
     },
     created () {
@@ -71,7 +76,7 @@ export default {
     watch: {
         fileItem: {
             handler(val) {
-                this.$emit('changeFileList', val, this.type)
+                // this.$emit('changeFileList', val, this.type)
             },
             deep: true,
             immediate: true
@@ -91,34 +96,26 @@ export default {
         },
         change(file, fileList) {
             console.log(fileList, file, 'change');
-            this.fileItem = fileList;
+            // this.fileItem = fileList;
         },
         handleRemove(file, fileList) {
             console.log(file);
             console.log(fileList, '删除');
-            this.fileItem = fileList;
+            // this.fileItem = fileList;
 
         },
         handlePreview(file) {
             console.log(file);
         },
         handlerSuccess(response, file, fileList) {
-            console.log(response, fileList, this.fileItem, 'handlerSuccess')
-            // let list = fileList && fileList.map(item => {
-            //     item.uploadFile = `${qiniuConfig.Domain}/${response.key}`;
-            //     return item.uploadFile;
-            // });
-            this.fileItem.map(item => {
-                if (item.response) {
-                    item.url = `${qiniuConfig.Domain}/${response.key}`
-                }
-                return item;
-            })
-            this.$emit('handlerSuccess', this.formItem);
+            this.$emit('handlerSuccess', fileList);
             this.$emit('input', this.formItem)
         },
         upload() {
             this.$refs.upload.submit();
+        },
+        handlerError() {
+            this.$message.error('请重新上传');
         }
         
     }

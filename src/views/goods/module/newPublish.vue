@@ -16,6 +16,7 @@
                                     tips="只能上传jpg/png文件，默认第一张图为封面主图"
                                     @handlerSuccess="productListUploaded"
                                     @changeFileList="changeFileList"
+                                    @handleError="handleErrorProduct"
                                 />
                             </el-form-item>
                         </div>
@@ -147,6 +148,7 @@
                                 title="上传详情长图"
                                 @handlerSuccess="productDetailUploaded"
                                 @changeFileList="changeFileListDetails"
+                                @handleError="handleErrorDetail"
                             />
                         </div>
                     </el-col>
@@ -161,7 +163,7 @@
 
 <script>
 import UpLoad from './subModule/upload';
-
+import {qiniuConfig} from '@/utils/qiniuConfig';
 import Api from '@/api';
 export default {
     name:'newPublish',
@@ -305,37 +307,7 @@ export default {
                 this.subCatelogList = this.parentCatelogList.filter(i => i.id === item.id)[0].children;
             }
         },
-        async submit() {
-            
-            if (this.type === 'edit') {
-                if (this.isDetailsAllDone) {
-                    await this.$refs.productDetailUpload.upload();
-                } else if (this.isAllDone) {
-                    await this.$refs.productListUpload.upload();
-                } else {
-                    this.editProduct();
-                }
-            } else {
-                await this.$refs.productListUpload.upload();
-                await this.$refs.productDetailUpload.upload();
-            }
-
-        },
-        productListUploaded(list) {
-            console.log(list, '11111');
-            this.productImg = list;
-            this.setFormDataImg();
-            // this.formData.mainImage = list && list[0];
-            // this.formData.subImages = list && list.length > 1 && list.slice(1).join(';') || '';
-            if (this.isAllDone && this.type === 'edit') {
-                this.editProduct()
-            }
-        },
-        productDetailUploaded(list) {
-            // console.log(list, '2222');
-            // this.formData.details = list && list.join(';');
-            this.detailImg = list;
-            this.setFormDataImg();
+        submit() {
             this.params = {
                 categoryId: Number(this.formData.categoryId),
                 categoryParentId: Number(this.formData.categoryParentId),
@@ -361,9 +333,16 @@ export default {
                 tagIds: this.formData.tagIds,
                 transportCosts: Number(this.formData.transportCosts)
             };
-            if (this.type === 'edit' && this.isDetailsAllDone) {
-                this.editProduct();
+
+            if (this.type === 'edit') {
+                this.params.id = this.formData.id;
+                Api.product.edit(this.params).then(res => {
+                    console.log('res', res);
+                    this.$message.success('编辑成功');
+                    this.$emit('edit');
+                });
             }  else {
+                
                 Api.product.add(this.params).then(res => {
                     console.log('res', res);
                     this.$message.success('发布成功');
@@ -371,6 +350,30 @@ export default {
                 });
             }
             
+
+        },
+        productListUploaded(list) {
+            console.log(list, '11111');
+            
+            list = list.map(item => {
+                item.url = `${qiniuConfig.Domain}/${item.response.key}`;
+                return item;
+            })
+            this.productImg = list;
+            this.setFormDataImg();
+            // this.formData.mainImage = list && list[0];
+            // this.formData.subImages = list && list.length > 1 && list.slice(1).join(';') || '';
+            if (this.isAllDone && this.type === 'edit') {
+                this.editProduct()
+            }
+        },
+        productDetailUploaded(list) {
+            list = list.map(item => {
+                item.url = `${qiniuConfig.Domain}/${item.response.key}`;
+                return item;
+            })
+            this.detailImg = list;
+            this.setFormDataImg();
         },
         async editProduct() {
             await this.setFormDataImg();
@@ -425,6 +428,12 @@ export default {
             this.formData.subImages = productImg && productImg.length > 1 && productImg.slice(1).join(';') || '';
             this.formData.details = detailImg && detailImg.join(';');
 
+        },
+        handleErrorProduct() {
+            this.$message.error('图片上传失败，请重新提交');
+        },
+        handleErrorDetail() {
+            this.$message.error('图片详情上传失败，请重新提交');
         }
 
     }

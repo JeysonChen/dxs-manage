@@ -3,31 +3,16 @@
         <el-tabs v-model="activeName">
             <el-tab-pane label="团长列表" name="first">
                 <el-form
-                    :model="formData" 
+                    :model="searchData" 
                     ref="ruleForm" 
                     label-width="100" 
                     :inline="true"
                 >
                     <el-form-item label="用户名" prop="userName">
-                        <el-input v-model="formData.userName" size="small"></el-input>
+                        <el-input v-model="searchData.userName" size="small"></el-input>
                     </el-form-item>
                     <el-form-item label="手机号" prop="phone">
-                        <el-input v-model="formData.phone" size="small"></el-input>
-                    </el-form-item>
-                    <el-form-item label="邮箱" prop="email">
-                        <el-input v-model="formData.email" size="small"></el-input>
-                    </el-form-item>
-                    <el-form-item label="邮箱" prop="time">
-                        <el-date-picker
-                            v-model="formData.time"
-                            type="daterange"
-                            size="small"
-                            range-separator="至"
-                            start-placeholder="开始日期"
-                            end-placeholder="结束日期"
-                            value-format="yyyy-MM-dd"
-                            >
-                        </el-date-picker>
+                        <el-input v-model="searchData.phone" size="small"></el-input>
                     </el-form-item>
                     <el-form-item>
                         <el-button type="primary" size="small" @click="search">查询</el-button>
@@ -59,13 +44,15 @@
             <el-tab-pane label="新增团长" name="second">
                 <!-- 添加分类 -->
                 <FormBox ref="chiefForm" :formItem="formItem" :rules="rules" :dataSet="dataSet" 
-                    @add="add" @fileList="getFileList"/>
+                    @add="add"/>
             </el-tab-pane>
         </el-tabs>
     </div>
 </template>
 
 <script>
+import {qiniuConfig} from '@/utils/qiniuConfig';
+
 import crypto from 'crypto-js/md5';
 import FormBox from '@/components/formBox';
 import CheckList from '@/components/checkList'
@@ -104,7 +91,11 @@ export default {
                 email: '',
                 time: []
             },
-            type: 'add'
+            type: 'search',
+            searchData: {
+                userName: '',
+                phone: '',
+            }
         }
     },
     created () {
@@ -114,10 +105,10 @@ export default {
         
     },
     methods: {
-        async add(formData) {
+        add(formData) {
             this.formData = formData;
             this.type = 'add';
-            await this.$refs.chiefForm.upload();
+            this.submit();
         },
         setParams() {
             let {time} = this.formData;
@@ -125,12 +116,15 @@ export default {
             return {...this.formData, startTime, endTime};
         },
         search() {
+            this.type = 'search';
             this.pagination.currentPage = 1;
             this.getData();
         },
         getData() {
-            let params = this.setParams();
-            delete params.time;
+            let params = {};
+            if (this.type === 'search') {
+                params = this.searchData;
+            }
             this.loading = true;
             Api.mallUser.list(
                 {
@@ -152,6 +146,7 @@ export default {
             console.log(event, row, 'event');
             switch(event) {
                 case 'edit':
+                    this.type = 'edit';
                     this.$refs.dialog.open();
                     this.dialogFormData = row;
                     this.dialogFormData.fileList = [{url: row.avatar}]
@@ -181,32 +176,32 @@ export default {
         },
         // 编辑提交
         async submitDialog(val) {
-            console.log(val);
-            this.formData = val;
+            this.formData = val ;
             this.type = 'edit';
             // await this.$refs.chiefForm.upload();
-            this.add(val);
+            this.submit();
             
         },
-        async getFileList(list) {
-            this.formData.avatar = list && list[0];
-            if (this.formData.password2) {
-                this.formData.password = this.formData.password2;
-                delete this.formData.password2;
-            }
+        submit() {
+            this.pagination.currentPage = 1;
+            let params = {};
+            params = {
+                avatar: this.formData.avatar,
+                email: this.formData.email,
+                nickName: this.formData.nickName,
+                password: this.formData.password2,
+                phone: this.formData.phone,
+                username: this.formData.username
+            };
             if (this.type === 'edit') {
-                Api.mallUser.edit({
-                    id: this.formData.id,
-                    ...this.formData
-                }).then(res => {
+                params.id = Number(this.dialogFormData.id);
+                Api.mallUser.edit(params).then(res => {
                     console.log(res, '编辑mark');
                     this.$message.success('编辑成功');
                     this.getData();
                 })
             } else {
-                Api.mallUser.add(
-                    this.formData
-                ).then(res => {
+                Api.mallUser.add(params).then(res => {
                     // 消息提示--添加成功
                     this.activeName = 'first';
                     this.$message.success('添加成功')

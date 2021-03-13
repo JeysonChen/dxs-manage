@@ -13,7 +13,6 @@
                 <el-form-item v-if="item.type=='upload'" :label="item.label" :prop="item.prop" :key="item.prop">
                     <Upload
                         ref="upload"
-                        v-model="formData[item.prop]"
                         type="1"
                         :file-list="formData.fileList"
                         :limit="item.limit"
@@ -58,6 +57,8 @@
 </template>
 
 <script>
+import {qiniuConfig} from '@/utils/qiniuConfig';
+
 import Upload from '../../views/goods/module/subModule/upload';
 // 地区选择--省市区级联数据
 import { 
@@ -130,30 +131,26 @@ export default {
             this.formData = {...this.formDataInit};
         },
         onSubmit() {
-            // debugger
-            // let hasUpload = this.formItem.some(item => item.type === 'upload');
-            // if (hasUpload) {
-            //     debugger;
-            //     this.$refs.upload.upload();
-            // }
             this.$refs.ruleForm.validate((valid) => {
                 if (valid) {
-                    // console.log(this.formData,'提交')
                     this.$emit('add', this.formData);
-
                 } else {
-                    // console.log('error submit!!');
                     return false;
                 }
             });
         },
         upload() {
-            console.log(this.$refs.upload, '----------')
             this.$refs.upload[0].upload();
         },
         uploaded(prop, list) {
             console.log(prop, list, 'prop, list');
-            this.$emit('fileList', list);
+            // this.$emit('fileList', list);
+            list = list.map(item => {
+                item.url = `${qiniuConfig.Domain}/${item.response.key}`;
+                return item;
+            });
+            console.log(list[0].url, 'list[0].url');
+            this.formData[prop] = list[0].url;
         }
     }
 }
