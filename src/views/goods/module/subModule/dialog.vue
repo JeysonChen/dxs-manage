@@ -12,8 +12,9 @@
             <new-publish
                 type="edit"
                 :edit-data="editData"
-                :product-img="productInfo.productImg"
-                :detail-img="productInfo.detailImg"
+                @changeFileList="changeFileList"
+                @changeFileListDetails="changeFileListDetails"
+                @edit="edit"
             /> 
         </div>
     </el-drawer>
@@ -25,7 +26,7 @@ import NewPublish from '../newPublish';
 export default {
     data () {
         return {
-            dialog: false,
+            dialog: true,
             loading: false,
             dataSet: {
                 formSet: {
@@ -35,8 +36,8 @@ export default {
                 },
             },
             dialogFormData: {},
-            productInfo: {}
-
+            productInfo: {},
+            editData: this.formData
         }
     },
     components: {
@@ -56,13 +57,10 @@ export default {
             default: () => {}
         },
     },
-    created () {
-        
-    },
-    computed: {
-        editData() {
-            return this.formData;
-        }
+    mounted() {
+        this.$nextTick(() => {
+            this.getProductDetail(this.editData.id);
+        })
     },
     methods: {
         handleClose() {
@@ -75,21 +73,31 @@ export default {
             })
             
         },
+        edit() {
+            this.$emit('edit')
+        },
         close() {
             this.dialog = false;
+            this.$emit('close');
+        },
+        changeFileList(list) {
+            this.editData.productImg = list;
+        },
+        changeFileListDetails(list) {
+            this.editData.detailImg = list;
         },
         getProductDetail(id) {
             Api.product.info({
                 productId: id
             }).then(({data}) => {
-                this.productInfo = data;
-                let list1 = [data.mainImage].concat(data.subImages && data.subImages.split(','));
-                this.productInfo.productImg = list1.map(item => {
+                Object.assign(this.editData, data);
+                let list1 = [data.mainImage].concat(data.subImages && data.subImages.split(',') || []);
+                this.editData.productImg = list1.map(item => {
                     return {
                         url: item
                     }
                 });
-                this.productInfo.detailImg = [...data.detail.split(',')].map(item => {
+                this.editData.detailImg = [...data.detail.split(',')].map(item => {
                     return {
                         url: item
                     }
@@ -97,19 +105,8 @@ export default {
             })
         },
         submit(n) {
+
             this.close();
-            this.$confirm(n === 1 ? '通过后将全部退还' : '确认驳回退款')
-            .then(_ => {
-                Api.order.audit({
-                    id: this.formData.id,
-                    orderNo: this.formData.orderNo,
-                    status: n
-                }).then(({data}) => {
-                    this.$message.success('提交成功');
-                    this.$emit('submitSucc');
-                });
-            })
-            .catch(_ => {});
         },
 
     }

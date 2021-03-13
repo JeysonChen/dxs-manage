@@ -1,17 +1,17 @@
 <template>
 	<div id="app" class="dxs-wrapper">
         <!-- 登录页面 -->
-        <Login v-if="!isAuthenticated"/>
+        <!-- <Login v-if="!isAuthenticated"/> -->
 
         <!-- 后台区域 -->
-		<el-container v-else style="flex-direction: column;">
+		<el-container style="flex-direction: column;">
             <!-- 顶栏、头部 -->
             <!-- 数据传递：父传子 -->
-            <header-menu :navData="navMenu" :defaultValue="defaultValue" @changeNav="changeNav"/>
+            <header-menu v-if="isAuthenticated"  :navData="navMenu" :defaultValue="defaultValue" @changeNav="changeNav"/>
             <!-- 下面内容 -->
             <el-container class="bottom-box">
                 <!-- 左侧栏导航 -->
-                <sider-menu :menuData="currentNav" :defaultValue="defaultSideMenu" />
+                <sider-menu v-if="isAuthenticated" :menuData="currentNav" :defaultValue="defaultSideMenu" />
 
                 <!-- 内容区 -->
                 <el-main class="main-box">
@@ -51,7 +51,8 @@ export default {
             return this.$route.params.menu;
         },
         isAuthenticated() {
-            return localStorage.getItem('isAuthenticated');
+            console.log(this.$store.state.isAuthenticated, 'this.$store.state.isAuthenticated')
+            return this.$store.state.isAuthenticated
         },
     },
     watch: {

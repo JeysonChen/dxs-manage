@@ -13,11 +13,13 @@
             @handleTable="handleTable"
         />
         <Dialog
+            v-if="showDialog"
             ref="dialog"
             title="编辑商品"
             :form-data="dialogFormData"
             @submit="submitDialog"
-
+            @close="closeDialog"
+            @edit="edit"
         />
     </div>
 </template>
@@ -51,7 +53,8 @@ export default {
             loading: false,
             showDialog: false,
             dialogFormData: {},
-            activeName: 'first'
+            activeName: 'first',
+            showDialog: false,
         }
     },
     created () {
@@ -63,7 +66,8 @@ export default {
         },
         tableTitle() {
             return tableTitle.concat(tableHandler[this.params]);
-        }
+        },
+        
     },
 
     watch: {
@@ -83,21 +87,29 @@ export default {
                 this.pagination.total = data.total;
                 this.tableData = data.records.map((item, index) => {
                     item.index = index + 1;
-                    item.groupOwnerEarnings = Number(item.groupOwnerEarnings) / 10;
                     item.costPrice = Number(item.costPrice) / 10;
-                    item.helphairEarnings = Number(item.helphairEarnings) / 10;
                     item.originPrice = Number(item.originPrice) / 10;
-                    item.shareEarnings = Number(item.shareEarnings) / 10;
                     item.salePrice = Number(item.salePrice) / 10;
+                    item.groupOwnerEarnings = Number(item.groupOwnerEarnings) / 10;
+                    item.shareEarnings = Number(item.shareEarnings) / 10;
+                    item.helphairEarnings = Number(item.helphairEarnings) / 10;
+                    item.stockQuantity = item.stock;
                     return item;
                 });
             })
+        },
+        edit() {
+            this.closeDialog();
+            this.getData();
+        },
+        closeDialog() {
+            this.showDialog = false;
         },
         handleTable(event, row) {
             console.log(event, row, 'event');
             switch(event) {
                 case 'edit':
-                    this.$refs.dialog.open();
+                    this.showDialog = true;
                     this.dialogFormData = row;
                     // this.getProductDetail(row.id);
                     break;

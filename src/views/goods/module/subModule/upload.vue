@@ -7,6 +7,8 @@
         :file-list="fileList"
         list-type="picture-card"
         :type="type"
+        accept=".png,.jpeg,.jpg"
+        :on-change="change"
         :on-preview="handlePreview"
         :on-remove="handleRemove"
         :on-success="handlerSuccess"
@@ -29,7 +31,8 @@ export default {
                 uploadToken: '',
                 domain: '',
             },
-
+            fileItem: [],
+            successFile: []
         }
     },
     props: {
@@ -62,10 +65,21 @@ export default {
         
     },
     mounted () {
-        
+        this.formItem = this.fileList;
+        this.successFile = this.fileList;
+    },
+    watch: {
+        fileItem: {
+            handler(val) {
+                this.$emit('changeFileList', val, this.type)
+            },
+            deep: true,
+            immediate: true
+        }
     },
     methods: {
         beforeUpload(file) {
+            console.log(file, '0000bef')
             let tokendata= {
 				ak: qiniuConfig.AccessKey,
 				sk: qiniuConfig.SecretKey,
@@ -75,19 +89,33 @@ export default {
             this.uploadForm.token = token.token(tokendata);  //参数传入封装代码函数
             this.uploadForm.key = Math.round(new Date() / 1000);
         },
-        handleRemove(file) {
+        change(file, fileList) {
+            console.log(fileList, file, 'change');
+            this.fileItem = fileList;
+        },
+        handleRemove(file, fileList) {
             console.log(file);
+            console.log(fileList, '删除');
+            this.fileItem = fileList;
+
         },
         handlePreview(file) {
             console.log(file);
         },
         handlerSuccess(response, file, fileList) {
-            let list = fileList && fileList.map(item => {
-                item.uploadFile = `${qiniuConfig.Domain}/${response.key}`;
-                return item.uploadFile;
-            });
-            this.$emit('handlerSuccess', list);
-            this.$emit('input', list)
+            console.log(response, fileList, this.fileItem, 'handlerSuccess')
+            // let list = fileList && fileList.map(item => {
+            //     item.uploadFile = `${qiniuConfig.Domain}/${response.key}`;
+            //     return item.uploadFile;
+            // });
+            this.fileItem.map(item => {
+                if (item.response) {
+                    item.url = `${qiniuConfig.Domain}/${response.key}`
+                }
+                return item;
+            })
+            this.$emit('handlerSuccess', this.formItem);
+            this.$emit('input', this.formItem)
         },
         upload() {
             this.$refs.upload.submit();

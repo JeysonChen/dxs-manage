@@ -15,6 +15,7 @@
                                     actionUrl="https://upload-z2.qiniup.com"
                                     tips="只能上传jpg/png文件，默认第一张图为封面主图"
                                     @handlerSuccess="productListUploaded"
+                                    @changeFileList="changeFileList"
                                 />
                             </el-form-item>
                         </div>
@@ -67,19 +68,19 @@
                             <el-form-item prop="title" class="pl-60">
                                 <el-input size="small" v-model="formData.groupOwnerEarnings">
                                     <template slot="prefix">大团主挣：</template>
-                                    <template slot="suffix">%</template>
+                                    <template slot="suffix">元</template>
                                 </el-input>
                             </el-form-item>
                             <el-form-item prop="subtitle" class="pl-84">
                                 <el-input size="small" v-model="formData.shareEarnings" >
                                     <template slot="prefix">小团主自转挣：</template>
-                                    <template slot="suffix">%</template>
+                                    <template slot="suffix">元</template>
                                 </el-input>
                             </el-form-item>
                             <el-form-item class="pl-84">
                                 <el-input size="small" v-model="formData.helphairEarnings">
                                     <template slot="prefix">小团主帮发挣：</template>
-                                    <template slot="suffix">%</template>
+                                    <template slot="suffix">元</template>
                                 </el-input>
                             </el-form-item>
                         </div>
@@ -145,6 +146,7 @@
                                 tips="只能上传jpg/png文件，且不超过500kb"
                                 title="上传详情长图"
                                 @handlerSuccess="productDetailUploaded"
+                                @changeFileList="changeFileListDetails"
                             />
                         </div>
                     </el-col>
@@ -170,7 +172,7 @@ export default {
         return {
             uploadProductList: [], // 上传图片列表
             uploadProductDetail: [], // 商品详情          
-            formData1: {
+            formData: {
                 categoryId: 0,
                 categoryParentId: 0,
                 costPrice: 0,
@@ -224,16 +226,41 @@ export default {
                 desc: [
                     { required: true, message: '请填写活动形式', trigger: 'blur' }
                 ]
-            }
+            },
+            isAllDone: false,
+            isDetailsAllDone: false,
+            params: {},
+            detailImg: [],
+            productImg: []
         }
     },
     computed: {
-        formData() {
-            if (this.type === 'edit') {
-                this.categoryParentId = this.editData.categoryParentId;
-            }
-            return this.type === 'edit' ? this.editData : this.formData1;
+        // formData() {
+        //     return this.type === 'edit' ? this.editData : this.formData1;
+        // },
+        userInfo() {
+            return this.$store.state.userInfo;
         }
+    },
+    watch: {
+        editData: {
+            handler(val) {
+                if (this.type === 'edit' && val) {
+                    this.formData = {...val};
+                    this.detailImg = val.detailImg;
+                    this.productImg = val.productImg;
+                    this.categoryParentId = val.categoryParentId;
+                    setTimeout(() => {
+                        this.subCatelogList = this.parentCatelogList.filter(i => i.id === val.categoryParentId)[0].children;
+                        this.categoryId = val.categoryId;
+                    }, 0)
+                    
+                }
+            },
+            immediate: true,
+            deep: true
+            
+        },
     },
     props: {
         editData: {
@@ -244,18 +271,16 @@ export default {
             type: String,
             default: 'add'
         },
-        productImg: {
-            type: Array,
-            default: () => []
-        },
-        detailImg: {
-            type: Array,
-            default: () => []
-        }
     },
     mounted () {
+        console.log(this.userInfo.id, '=-=-')
         this.getMarks();
         this.getCatelogList();
+    },
+    computed: {
+        userInfo() {
+            return this.$store.state.userInfo;
+        }
     },
     methods: {
         // 获取所有标签
@@ -271,6 +296,7 @@ export default {
                 this.parentCatelogList = data;
             })
         },
+
         // 分类
         catelogChange(type, item) {
             this.formData[type] = item.id;
@@ -280,30 +306,43 @@ export default {
             }
         },
         async submit() {
-            debugger
-            await this.$refs.productListUpload.upload();
-            await this.$refs.productDetailUpload.upload();
-            // Api.product.add(params).then(({data}) => {
-            //     console.log(data, 'tijandj')
-            //     this.$message.success('发布成功');
-            //     this.$router.push({name: 'Goods', params: {menu: 'onsale'}})
-            // })
+            
+            if (this.type === 'edit') {
+                if (this.isDetailsAllDone) {
+                    await this.$refs.productDetailUpload.upload();
+                } else if (this.isAllDone) {
+                    await this.$refs.productListUpload.upload();
+                } else {
+                    this.editProduct();
+                }
+            } else {
+                await this.$refs.productListUpload.upload();
+                await this.$refs.productDetailUpload.upload();
+            }
+
         },
         productListUploaded(list) {
             console.log(list, '11111');
-            this.formData.mainImage = list && list[0];
-            this.formData.subImages = list && list.length > 1 && list.slice(1).join(';') || '';
+            this.productImg = list;
+            this.setFormDataImg();
+            // this.formData.mainImage = list && list[0];
+            // this.formData.subImages = list && list.length > 1 && list.slice(1).join(';') || '';
+            if (this.isAllDone && this.type === 'edit') {
+                this.editProduct()
+            }
         },
         productDetailUploaded(list) {
-            console.log(list, '2222');
-            this.formData.details = list && list.join(';');
-            let params = {
+            // console.log(list, '2222');
+            // this.formData.details = list && list.join(';');
+            this.detailImg = list;
+            this.setFormDataImg();
+            this.params = {
                 categoryId: Number(this.formData.categoryId),
                 categoryParentId: Number(this.formData.categoryParentId),
                 costPrice: Number(this.formData.costPrice) * 10,
                 detail: this.formData.details,
                 groupOwnerEarnings: Number(this.formData.groupOwnerEarnings) * 10,
-                groupOwnerId: JSON.parse(localStorage.getItem('userInfo')).id,
+                groupOwnerId: this.userInfo.id,
                 helphairEarnings: Number(this.formData.helphairEarnings) * 10,
                 mainImage: this.formData.mainImage,
                 maxBuyQuantity: Number(this.formData.maxBuyQuantity),
@@ -322,23 +361,71 @@ export default {
                 tagIds: this.formData.tagIds,
                 transportCosts: Number(this.formData.transportCosts)
             };
-            console.log(params, '99')
-            if (this.type === 'edit') {
-                debugger
-                Api.product.edit(params).then(res => {
-                    console.log('res', res);
-                    this.$message.success('编辑成功');
-                    this.$router.push({name: 'Goods', params: {menu: 'onsale'}})
-                });
+            if (this.type === 'edit' && this.isDetailsAllDone) {
+                this.editProduct();
             }  else {
-                Api.product.add(params).then(res => {
+                Api.product.add(this.params).then(res => {
                     console.log('res', res);
                     this.$message.success('发布成功');
-                    this.$router.push({name: 'Goods', params: {menu: 'onsale'}})
+                    this.$router.push('/goods/onsale')
                 });
             }
             
         },
+        async editProduct() {
+            await this.setFormDataImg();
+            this.params = {
+                id: this.formData.id,
+                categoryId: Number(this.formData.categoryId),
+                categoryParentId: Number(this.formData.categoryParentId),
+                costPrice: Number(this.formData.costPrice) * 10,
+                detail: this.formData.details,
+                groupOwnerEarnings: Number(this.formData.groupOwnerEarnings) * 10,
+                groupOwnerId: this.userInfo.id,
+                helphairEarnings: Number(this.formData.helphairEarnings) * 10,
+                mainImage: this.formData.mainImage,
+                maxBuyQuantity: Number(this.formData.maxBuyQuantity),
+                monthlySales: Number(this.formData.monthlySales),
+                name: this.formData.name,
+                originPrice: Number(this.formData.originPrice) * 10,
+                promotionIds: this.formData.promotionIds,
+                salePrice: Number(this.formData.salePrice) * 10,
+                shareEarnings: Number(this.formData.shareEarnings) * 10,
+                status: Number(this.formData.status),
+                stockQuantity: Number(this.formData.stockQuantity),
+                stockStatus: Number(this.formData.stockStatus),
+                strategyIds: this.formData.strategyIds,
+                subImages: this.formData.subImages,
+                subtitle: this.formData.subtitle,
+                tagIds: this.formData.tagIds,
+                transportCosts: Number(this.formData.transportCosts)
+            };
+            Api.product.edit(this.params).then(res => {
+                console.log('res', res);
+                this.$message.success('编辑成功');
+                this.$emit('edit');
+            });
+        },
+        changeFileList(list, type) {
+            console.log(list, type, '0000');
+            this.productImg = list;
+            this.setFormDataImg();
+
+            this.isAllDone = list.some(item => item.status !== 'success');
+        },
+        changeFileListDetails(list, type) {
+            this.detailImg = list;
+            this.setFormDataImg();
+            this.isDetailsAllDone = list.some(item => item.status !== 'success');
+        },
+        setFormDataImg() {
+            let productImg = this.productImg.map(item => item.url);
+            let detailImg = this.detailImg.map(item => item.url);
+            this.formData.mainImage = productImg && productImg[0];
+            this.formData.subImages = productImg && productImg.length > 1 && productImg.slice(1).join(';') || '';
+            this.formData.details = detailImg && detailImg.join(';');
+
+        }
 
     }
 }

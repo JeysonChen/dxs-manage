@@ -73,6 +73,8 @@ export default {
                 localStorage.setItem('userInfo', '');
                 localStorage.setItem('isAuthenticated', false);
                 localStorage.setItem('token', '');
+                this.$store.commit('setUserInfo', null);
+                this.$store.commit('setAuthenticated', false);
                 this.$router.push({path: '/login'})
             })
         }

@@ -181,7 +181,6 @@ export default {
         },
         // 编辑提交
         async submitDialog(val) {
-            debugger
             console.log(val);
             this.formData = val;
             this.type = 'edit';
@@ -195,7 +194,6 @@ export default {
                 this.formData.password = this.formData.password2;
                 delete this.formData.password2;
             }
-            debugger;
             if (this.type === 'edit') {
                 Api.mallUser.edit({
                     id: this.formData.id,
